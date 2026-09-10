@@ -4,7 +4,7 @@ import { useCart } from '../context/CartContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { api } from '../lib/api.js'
 import { naira } from '../data/menu.js'
-import { contact, orderingInfo } from '../data/site.js'
+import { orderingInfo } from '../data/site.js'
 
 // Mirrors the server's list so the form renders before /zones responds; the
 // server is the authority on fees and re-sends them below.
@@ -16,17 +16,15 @@ const defaultZones = [
 ]
 
 export default function Order() {
-  const { lines, subtotal, setQty, remove, clear } = useCart()
+  const { lines, subtotal, setQty, remove } = useCart()
   const { user, ready } = useAuth()
 
   const [zones, setZones] = useState(defaultZones)
   const [zone, setZone] = useState('mainland')
-  const [payment, setPayment] = useState('transfer')
   const [form, setForm] = useState({ name: '', phone: '', address: '', when: '', notes: '' })
   const [errors, setErrors] = useState({})
   const [message, setMessage] = useState('')
   const [placing, setPlacing] = useState(false)
-  const [done, setDone] = useState(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -56,64 +54,47 @@ export default function Order() {
   const isPickup = zone === 'pickup'
   const canPlace = form.name && (isPickup || form.address) && lines.length > 0
 
-  const placeOrder = async () => {
+  /**
+   * Places the order and hands the customer to Paystack.
+   *
+   * We send what was chosen, never what it costs — the server prices every
+   * line from its own catalogue, so the total shown here is a quote and the
+   * amount charged is the server's. The cart is deliberately NOT cleared:
+   * the customer has not paid yet, and if they abandon the Paystack page
+   * they should come back to a cart that still has their food in it.
+   * /order/complete clears it once the payment is confirmed.
+   */
+  const payWithPaystack = async () => {
     setPlacing(true)
     setErrors({})
     setMessage('')
     try {
-      const { order } = await api.post('/orders', {
+      const { payment } = await api.post('/orders', {
         name: form.name,
         phone: form.phone,
         zone,
-        payment,
+        payment: 'paystack',
         address: isPickup ? '' : form.address,
         wantedFor: form.when,
         notes: form.notes,
         items: lines.map((l) => ({
           slug: l.slug,
-          name: l.name,
-          portionLabel: l.portionLabel,
-          optionLabels: l.optionLabels,
+          portionId: l.portionId,
+          options: l.options ?? {},
           notes: l.notes,
-          tone: l.tone,
-          unitPrice: l.unitPrice,
           qty: l.qty,
         })),
       })
-      setDone(order)
-      clear()
+      if (!payment?.authorizationUrl) {
+        throw new Error('Paystack did not give us a checkout link. Please try again.')
+      }
+      // Leaves the site. Nothing after this runs.
+      window.location.assign(payment.authorizationUrl)
     } catch (error) {
       setErrors(error.fields ?? {})
       setMessage(error.message)
-    } finally {
       setPlacing(false)
     }
-  }
-
-  if (done) {
-    return (
-      <section className="band band-cream">
-        <div className="wrap panel confirm">
-          <div className="confirm-mark" aria-hidden="true">✓</div>
-          <h1 style={{ fontSize: '2rem' }}>Order placed</h1>
-          <p>
-            Thank you, {done.customer.name}. Your reference is <strong>{done.reference}</strong> and
-            the total is <strong>{naira(done.total)}</strong>.
-          </p>
-          <p>
-            {done.customer.phone
-              ? 'We will call you on the number you gave to confirm timing and payment.'
-              : 'We will email you to confirm timing and payment.'}{' '}
-            If you would rather reach us first, phone {contact.phone}.
-          </p>
-          <p className="note">This order has been saved to your account.</p>
-          <div className="pdp-buy" style={{ justifyContent: 'center' }}>
-            <Link className="btn btn-gold" to="/menu">Order something else</Link>
-            <Link className="btn btn-outline-dark" to="/account">View your orders</Link>
-          </div>
-        </div>
-      </section>
-    )
   }
 
   if (lines.length === 0) {
@@ -233,19 +214,19 @@ export default function Order() {
 
             <div className="panel">
               <h3>Payment</h3>
-              <div className="choices" role="radiogroup" aria-label="Payment method">
-                {/* TODO confirm which methods Hothobs accepts before launch. */}
-                <label className={`choice ${payment === 'transfer' ? 'on' : ''}`}>
-                  <input type="radio" name="pay" checked={payment === 'transfer'} onChange={() => setPayment('transfer')} />
-                  Bank transfer on confirmation
-                </label>
-                <label className={`choice ${payment === 'cash' ? 'on' : ''}`}>
-                  <input type="radio" name="pay" checked={payment === 'cash'} onChange={() => setPayment('cash')} />
-                  Pay on delivery or pickup
-                </label>
-              </div>
-              <p className="note" style={{ marginTop: '0.9rem' }}>
-                We confirm every order with you before cooking starts.
+              {/* Paystack is the only method — so this states what happens
+                  next rather than asking the customer to choose. */}
+              <p style={{ marginBottom: '0.6rem' }}>
+                <strong>Pay securely with Paystack.</strong>
+              </p>
+              <p className="note" style={{ marginBottom: '0.6rem' }}>
+                Card, bank transfer or USSD. Choosing <em>Pay with Paystack</em> takes you
+                to Paystack&rsquo;s secure page to finish — your card details never touch
+                our site.
+              </p>
+              <p className="note" style={{ marginBottom: 0 }}>
+                Your order is confirmed the moment payment goes through, and we call you
+                to agree timing.
               </p>
             </div>
           </div>
@@ -288,8 +269,8 @@ export default function Order() {
               {message && <p className="form-error" role="alert" style={{ marginTop: '1rem' }}>{message}</p>}
 
               <button className="btn btn-gold btn-block" style={{ marginTop: '1.25rem' }}
-                onClick={placeOrder} disabled={!canPlace || placing}>
-                {placing ? 'Placing your order…' : 'Place order'}
+                onClick={payWithPaystack} disabled={!canPlace || placing}>
+                {placing ? 'Taking you to Paystack…' : `Pay ${naira(total)} with Paystack`}
               </button>
               {!canPlace && (
                 <p className="note" style={{ marginTop: '0.75rem' }}>

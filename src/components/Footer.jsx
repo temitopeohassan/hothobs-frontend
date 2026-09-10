@@ -19,6 +19,11 @@ export default function Footer() {
                 Follow us on Instagram
               </a>
             </p>
+            <p style={{ fontSize: '0.95rem' }}>
+              <a href={brand.facebook} target="_blank" rel="noreferrer" className="link-gold" style={{ color: 'var(--warm-gold)' }}>
+                Find us on Facebook
+              </a>
+            </p>
           </div>
 
           <div>

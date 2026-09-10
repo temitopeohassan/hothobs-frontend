@@ -80,6 +80,10 @@ export default function Contact() {
                   <p><a className="link-gold" href={brand.instagram} target="_blank" rel="noreferrer">@hothobscuisines</a></p>
                 </div>
                 <div>
+                  <strong>Facebook</strong>
+                  <p><a className="link-gold" href={brand.facebook} target="_blank" rel="noreferrer">Hothobs Cuisines</a></p>
+                </div>
+                <div>
                   <strong>Where we are</strong>
                   <p>{contact.address}</p>
                 </div>

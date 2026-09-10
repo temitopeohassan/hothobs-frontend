@@ -17,8 +17,10 @@ export default function RequireAuth({ children }) {
   }
 
   if (!user) {
-    // Remember where they were headed so signing in returns them to it.
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />
+    // Remember where they were headed so signing in returns them to it —
+    // including the query string, which carries the Paystack reference on
+    // the way back from a payment.
+    return <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />
   }
 
   return children

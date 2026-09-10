@@ -12,6 +12,10 @@ export default function ProductCard({ product }) {
       key: `${product.slug}|${base.id}`,
       slug: product.slug,
       name: product.name,
+      // The server prices the order from these ids — see the backend's
+      // src/lib/catalogue.js. unitPrice below is only what we show.
+      portionId: base.id,
+      options: {},
       portionLabel: base.label,
       optionLabels: [],
       unitPrice: base.price,

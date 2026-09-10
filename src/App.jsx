@@ -12,6 +12,7 @@ import About from './pages/About.jsx'
 import Gallery from './pages/Gallery.jsx'
 import Contact from './pages/Contact.jsx'
 import Order from './pages/Order.jsx'
+import OrderComplete from './pages/OrderComplete.jsx'
 import NotFound from './pages/NotFound.jsx'
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
@@ -42,6 +43,15 @@ export default function App() {
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/order" element={<Order />} />
+          {/* Where Paystack returns the customer after they pay. */}
+          <Route
+            path="/order/complete"
+            element={
+              <RequireAuth>
+                <OrderComplete />
+              </RequireAuth>
+            }
+          />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route

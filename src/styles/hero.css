@@ -1,0 +1,366 @@
+/* ═══════════════════════════════════════════════════════════════════
+   THE HERO — a fixed composition, not a fluid one
+   ═══════════════════════════════════════════════════════════════════
+   Every length below is calc(N * var(--u)), where --u is one design
+   pixel measured off a 1353 x 1163 reference. Nothing here is guessed
+   from rem/%/flex — change --u and the whole composition scales as a
+   unit. Do not substitute raw px values.
+
+   --vh is the stage's own height: the viewport less the sticky site
+   header, so the hero fills what is actually left of the screen.
+   --vshift pushes the composition down on taller-than-design viewports
+   so it stays optically balanced.
+   --gutter offsets the content column left by half its value, putting
+   the optical centre at x=664 rather than 676.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.hero-stage {
+  --hdr: 72px;
+  --vh: calc(100vh - var(--hdr));
+  --dw: 1353;
+  --dh: 1163;
+  --gutter: 25;
+  --u: max(min(0.72px, calc(var(--vh) / 700)), min(calc(100vw / 1353), calc(var(--vh) / 1163)));
+  --dh-px: calc(1163 * var(--u));
+  --vshift: calc(max(0px, (var(--vh) - var(--dh-px))) * 0.42);
+
+  --h-ink: #ffffff;
+  --h-accent: var(--warm-gold);
+  --h-rule: rgba(255, 248, 232, 0.23);
+  --h-btn-ink: #05301a;
+
+  position: relative;
+  height: var(--vh);
+  min-height: calc(430 * var(--u));
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--deep);
+  color: var(--h-ink);
+}
+/* svh ignores the mobile URL bar, so the composition does not jump as it hides. */
+@supports (height: 100svh) {
+  .hero-stage { --vh: calc(100svh - var(--hdr)); }
+}
+
+.hero-stage *,
+.hero-stage *::before,
+.hero-stage *::after { box-sizing: border-box; }
+
+/* ── Backdrop ──────────────────────────────────────────────
+   All three layers live in the DOM at once and only cross-fade. The
+   outgoing layer is held at full opacity underneath (.is-prev) until
+   the incoming one has finished arriving, so a photograph that is not
+   yet decoded can never open a bare gap mid-swap. */
+.hero-stage .sky {
+  position: absolute; inset: 0; z-index: 0;
+  background: var(--deep);
+}
+.hero-stage .sky-layer {
+  position: absolute; inset: 0; z-index: 0;
+  background-position: center; background-size: cover; background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.22s linear;
+}
+.hero-stage .sky-layer.is-prev { opacity: 1; z-index: 0; }
+.hero-stage .sky-layer.is-active { opacity: 1; z-index: 1; }
+
+/* Photographs are bright and white type sits on top of them, so the
+   backdrop is always carried under a deep-green scrim. */
+.hero-stage .sky::after {
+  content: ""; position: absolute; inset: 0; z-index: 2;
+  background:
+    /* Darkest where the type sits, so the copy never has to fight the food. */
+    radial-gradient(76% 54% at 50% 42%,
+      rgba(0, 26, 12, 0.72) 0%,
+      rgba(0, 26, 12, 0.42) 58%,
+      rgba(0, 26, 12, 0) 100%),
+    linear-gradient(180deg,
+      rgba(0, 30, 14, 0.58) 0%,
+      rgba(0, 30, 14, 0.30) 30%,
+      rgba(0, 30, 14, 0.38) 62%,
+      rgba(0, 26, 12, 0.84) 100%);
+}
+
+.hero-stage .ui { position: absolute; inset: 0; z-index: 3; }
+
+/* ── Side slots ────────────────────────────────────────────
+   Two slots, not two features. Every cut-out is present in BOTH slots
+   as a sibling <img>; switching only toggles a class. Reassigning
+   img.src would leave the browser painting the old picture until the
+   new file downloaded — the swap has to land in a single frame. */
+.hero-stage .planet {
+  position: absolute; z-index: -1;
+  padding: 0; border: 0; background: none;
+  -webkit-appearance: none; appearance: none;
+  line-height: 0; cursor: pointer;
+  pointer-events: auto; /* .copy disables pointers wholesale */
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hero-stage .planet img {
+  display: none; width: 100%; height: auto;
+  aspect-ratio: 1 / 1; object-fit: cover;
+  border-radius: 50%;
+  box-shadow:
+    0 calc(14 * var(--u)) calc(34 * var(--u)) rgba(0, 20, 10, 0.55),
+    inset 0 0 0 calc(1.5 * var(--u)) rgba(255, 248, 232, 0.28);
+}
+.hero-stage .planet img.is-shown { display: block; }
+.hero-stage .planet:hover { transform: scale(1.045); }
+.hero-stage .planet:active { transform: scale(0.99); }
+.hero-stage .planet-l { width: calc(143 * var(--u)); left: calc(-69.5 * var(--u)); top: calc(-38.3 * var(--u)); }
+.hero-stage .planet-r { width: calc(143 * var(--u)); right: calc(-64.7 * var(--u)); top: calc(-40.6 * var(--u)); }
+@media (prefers-reduced-motion: reduce) {
+  .hero-stage .planet { transition: none; }
+  .hero-stage .planet:hover,
+  .hero-stage .planet:active { transform: none; }
+  .hero-stage .sky-layer { transition: none; }
+}
+
+/* ── Layout ────────────────────────────────────────────────
+   .copy spans the whole frame with pointers off so it can never
+   swallow a click meant for something behind it. */
+.hero-stage .copy {
+  position: absolute; inset: 0;
+  transform: translateY(var(--vshift));
+  pointer-events: none;
+}
+.hero-stage .copy a { pointer-events: auto; }
+.hero-stage .col {
+  position: absolute; left: 0; right: calc(var(--gutter) * var(--u));
+  text-align: center;
+}
+
+/* ── Hero copy ─────────────────────────────────────────────── */
+.hero-stage .eyebrow {
+  top: calc(188.8 * var(--u));
+  font-size: calc(30.45 * var(--u)); font-weight: 500; line-height: 1;
+  letter-spacing: calc(4 * var(--u)); text-indent: calc(4 * var(--u));
+  color: #fff;
+  text-shadow: 0 calc(1 * var(--u)) calc(16 * var(--u)) rgba(0, 18, 8, 0.6);
+}
+.hero-stage h1.title {
+  top: calc(268 * var(--u)); margin: 0;
+  font-family: var(--serif); font-weight: 400;
+  font-size: calc(112.4 * var(--u)); line-height: 1;
+  letter-spacing: calc(2 * var(--u)); text-indent: calc(2 * var(--u));
+  color: #fff;
+  text-shadow: 0 calc(2 * var(--u)) calc(24 * var(--u)) rgba(0, 18, 8, 0.55);
+}
+.hero-stage .rule {
+  top: calc(405.5 * var(--u)); height: calc(5 * var(--u));
+  font-size: 0; line-height: 0; padding-right: calc(2 * var(--u));
+}
+.hero-stage .rule span {
+  display: inline-block; vertical-align: top;
+  width: calc(100 * var(--u)); height: 100%;
+  border-radius: calc(2.5 * var(--u)); background: var(--h-accent);
+}
+.hero-stage p.lede {
+  top: calc(433.2 * var(--u)); margin: 0; max-width: none;
+  font-size: calc(18.36 * var(--u)); font-weight: 500;
+  line-height: calc(30 * var(--u)); color: rgba(255, 248, 232, 0.96);
+  text-shadow: 0 calc(1 * var(--u)) calc(12 * var(--u)) rgba(0, 18, 8, 0.72);
+}
+
+/* ── CTA row ───────────────────────────────────────────────── */
+.hero-stage .cta { top: calc(597 * var(--u)); height: calc(66 * var(--u)); isolation: isolate; }
+.hero-stage .cta a {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: calc(216 * var(--u)); height: calc(66 * var(--u));
+  border-radius: calc(33 * var(--u));
+  font-size: calc(17 * var(--u)); font-weight: 700;
+  letter-spacing: 0; text-indent: 0; line-height: 1;
+  color: var(--h-btn-ink); text-decoration: none;
+  padding-top: calc(2 * var(--u));
+  background: linear-gradient(180deg, #ffffff 0%, #fff3d4 4%, #fff6de 72%, #ffffff 100%);
+  box-shadow:
+    0 calc(10 * var(--u)) calc(18 * var(--u)) calc(-8 * var(--u)) rgba(255, 248, 232, 0.5),
+    0 0 calc(26 * var(--u)) rgba(255, 248, 232, 0.18),
+    inset 0 0 0 calc(2 * var(--u)) rgba(255, 255, 255, 0.9);
+}
+.hero-stage .label {
+  position: absolute; top: calc(33 * var(--u));
+  font-family: var(--serif); font-weight: 400;
+  font-size: calc(17.8 * var(--u)); letter-spacing: calc(4.6 * var(--u));
+  line-height: 1; color: #fff; white-space: nowrap;
+  text-shadow: 0 calc(1 * var(--u)) calc(14 * var(--u)) rgba(0, 18, 8, 0.7);
+}
+.hero-stage .label.label-l { left: calc(111 * var(--u)); }
+.hero-stage .label.label-r { right: calc(104 * var(--u)); }
+
+/* ── Scroll control ────────────────────────────────────────── */
+.hero-stage .scroll {
+  position: absolute; z-index: 4; left: 50%;
+  margin-left: calc((-48 - (var(--gutter) / 2)) * var(--u));
+  bottom: calc(68 * var(--u));
+  width: calc(96 * var(--u)); height: calc(96 * var(--u)); border-radius: 50%;
+  background: rgba(0, 40, 20, 0.7);
+  -webkit-backdrop-filter: blur(calc(6 * var(--u)));
+  backdrop-filter: blur(calc(6 * var(--u)));
+  border: 0; display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.hero-stage .scroll svg { width: calc(20 * var(--u)); height: calc(25 * var(--u)); display: block; }
+
+/* ── Focus ─────────────────────────────────────────────────── */
+.hero-stage .scroll:focus-visible,
+.hero-stage .cta a:focus-visible {
+  outline: calc(2 * var(--u)) solid var(--h-accent);
+  outline-offset: calc(3 * var(--u));
+}
+.hero-stage .planet:focus-visible {
+  outline: calc(2 * var(--u)) solid var(--h-accent);
+  outline-offset: calc(6 * var(--u));
+  border-radius: 50%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ENTRANCE — runs once, then removes itself
+   ═══════════════════════════════════════════════════════════════════
+   DRAW hairlines scale from centre · REVEAL type rises out of a mask ·
+   RISE copy lifts a short distance · SETTLE pills arrive with a small
+   scale resolve · FADE the full-bleed backdrop resolves in (it fades
+   and never translates — a translate would drag a bare edge in).
+   ═══════════════════════════════════════════════════════════════════ */
+@keyframes ent-reveal { from { transform: translateY(115%); } to { transform: translateY(0); } }
+@keyframes ent-rise   { from { opacity: 0; transform: translateY(var(--rise, 10px)); } to { opacity: 1; transform: none; } }
+@keyframes ent-settle { from { opacity: 0; transform: translateY(var(--rise, 8px)) scale(0.965); } to { opacity: 1; transform: none; } }
+@keyframes ent-draw   { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes ent-fade   { from { opacity: 0; } to { opacity: 1; } }
+
+.hero-stage.anim {
+  --e-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --e-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --e-slow: cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hero-stage .ent-mask,
+.hero-stage .ent-line { display: block; }
+.hero-stage.anim .ent-mask { overflow: hidden; padding-top: 0.18em; margin-top: -0.18em; }
+.hero-stage.anim .ent-line { transform: translateY(115%); will-change: transform; }
+.hero-stage.anim .rule span { transform: scaleX(0); }
+.hero-stage.anim p.lede,
+.hero-stage.anim .label,
+.hero-stage.anim .cta a,
+.hero-stage.anim .scroll,
+.hero-stage.anim .sky { opacity: 0; }
+.hero-stage.anim .sky { will-change: opacity; }
+
+.hero-stage.anim.play .sky            { animation: ent-fade 1.6s var(--e-slow) 0.25s both; }
+.hero-stage.anim.play .eyebrow .ent-line { animation: ent-reveal 0.75s var(--e-expo) 0.30s both; }
+.hero-stage.anim.play h1.title .ent-line { animation: ent-reveal 0.95s var(--e-expo) 0.44s both; }
+.hero-stage.anim.play .rule span      { animation: ent-draw 0.65s var(--e-expo) 0.78s both; }
+.hero-stage.anim.play p.lede          { --rise: calc(12 * var(--u)); animation: ent-rise 0.7s var(--e-quint) 0.86s both; }
+.hero-stage.anim.play .label.label-l  { --rise: calc(8 * var(--u)); animation: ent-rise 0.6s var(--e-quint) 1.04s both; }
+.hero-stage.anim.play .label.label-r  { --rise: calc(8 * var(--u)); animation: ent-rise 0.6s var(--e-quint) 1.10s both; }
+.hero-stage.anim.play .cta a          { --rise: calc(8 * var(--u)); animation: ent-settle 0.7s var(--e-quint) 1.14s both; }
+.hero-stage.anim.play .scroll         { animation: ent-settle 0.6s var(--e-quint) 1.42s both; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESPONSIVE — in this exact source order
+   ═══════════════════════════════════════════════════════════════════
+   The max-height thresholds carry a +72px allowance for the sticky
+   site header, so each one still describes the height of the STAGE,
+   which is what the composition actually has to fit into.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* A) TABLET
+   The hero is a centred symmetric composition, so it is re-proportioned
+   rather than stacked — the cut-out / button / cut-out row is the
+   section's signature and has to survive. */
+@media (min-width: 580px) and (max-width: 1030px) and (min-height: 693px) {
+  .hero-stage {
+    --gutter: 0;
+    --u: min(max(min(0.85px, calc(var(--vh) / 780)), min(calc(100vw / 900), calc(var(--vh) / 1163))), 1.15px);
+    --dh-px: calc(1120 * var(--u));
+    --vshift: calc(max(0px, (var(--vh) - var(--dh-px))) * 0.38);
+  }
+  .hero-stage p.lede br { display: none; }
+  .hero-stage p.lede {
+    max-width: calc(620 * var(--u)); margin-left: auto; margin-right: auto;
+    text-wrap: pretty;
+  }
+  .hero-stage .label.label-r { right: calc(116 * var(--u)); }
+}
+
+/* B) PHONE
+   Below the header the interface FLOWS instead of being absolutely
+   pinned, so it adapts to however many lines the copy wraps onto. */
+@media (max-width: 579px), (max-height: 692px) {
+  .hero-stage {
+    --gutter: 0;
+    --u: max(min(0.92px, calc(var(--vh) / 620)), min(calc(100vw / 430), calc(var(--vh) / 880)));
+    --dh-px: calc(880 * var(--u));
+    --vshift: calc(max(0px, (var(--vh) - var(--dh-px))) * 0.34);
+  }
+  .hero-stage .copy {
+    top: 0; display: flex; flex-direction: column; align-items: center;
+    padding: calc(52 * var(--u)) calc(26 * var(--u)) 0;
+  }
+  .hero-stage .col { position: static; width: 100%; right: auto; }
+  .hero-stage .eyebrow {
+    font-size: calc(20 * var(--u));
+    letter-spacing: calc(5 * var(--u)); text-indent: calc(5 * var(--u));
+  }
+  .hero-stage h1.title { font-size: calc(86 * var(--u)); margin-top: calc(15 * var(--u)); }
+  .hero-stage .rule { margin-top: calc(20 * var(--u)); height: calc(5 * var(--u)); padding-right: 0; }
+  .hero-stage .rule span { width: calc(84 * var(--u)); }
+  .hero-stage p.lede {
+    margin-top: calc(19 * var(--u));
+    font-size: calc(15.5 * var(--u)); line-height: calc(26 * var(--u));
+    max-width: calc(400 * var(--u)); text-wrap: balance;
+  }
+  .hero-stage p.lede br { display: none; }
+  .hero-stage .cta {
+    top: auto; position: relative;
+    margin-top: calc(32 * var(--u)); height: calc(60 * var(--u));
+  }
+  .hero-stage .cta a { width: calc(190 * var(--u)); height: calc(60 * var(--u)); border-radius: calc(30 * var(--u)); }
+  .hero-stage .label {
+    top: 50%; transform: translateY(-50%);
+    font-size: calc(16 * var(--u)); letter-spacing: calc(4 * var(--u));
+  }
+  .hero-stage .label.label-l { left: calc(56 * var(--u)); }
+  .hero-stage .label.label-r { right: calc(60 * var(--u)); }
+  .hero-stage .planet-l { width: calc(89 * var(--u)); left: calc(-44.5 * var(--u)); top: calc(-17 * var(--u)); }
+  .hero-stage .planet-r { width: calc(89 * var(--u)); right: calc(-44.5 * var(--u)); top: calc(-18.3 * var(--u)); }
+  .hero-stage .scroll {
+    width: calc(74 * var(--u)); height: calc(74 * var(--u));
+    margin-left: calc(-37 * var(--u)); bottom: calc(49 * var(--u));
+  }
+  .hero-stage .scroll svg { width: calc(15.5 * var(--u)); height: calc(19.5 * var(--u)); }
+}
+
+/* C) No room left for the scroll control. */
+@media (max-height: 732px) {
+  .hero-stage .scroll { display: none; }
+}
+
+/* D) SHORT */
+@media (max-height: 692px) {
+  .hero-stage {
+    --u: max(min(0.85px, calc(var(--vh) / 470)), min(calc(100vw / 640), calc(var(--vh) / 560)));
+    --dh-px: calc(560 * var(--u));
+    --vshift: 0px;
+  }
+  .hero-stage .copy { padding-top: calc(24 * var(--u)); }
+  .hero-stage h1.title { font-size: calc(64 * var(--u)); margin-top: calc(8 * var(--u)); }
+  .hero-stage .rule { margin-top: calc(12 * var(--u)); }
+  .hero-stage p.lede { margin-top: calc(12 * var(--u)); }
+  .hero-stage .cta { margin-top: calc(20 * var(--u)); }
+  .hero-stage .label { top: 50%; transform: translateY(-50%); font-size: calc(15 * var(--u)); }
+  .hero-stage .label.label-l { left: calc(58 * var(--u)); }
+  .hero-stage .label.label-r { right: calc(58 * var(--u)); }
+}
+@media (min-width: 821px) and (max-height: 732px) {
+  .hero-stage .copy { transform: none; }
+}
+
+/* E) NARROW PHONE — declared last so it wins inside tier D.
+   Below ~500px the label / button / label triad can no longer share a
+   line, so the labels drop to their own band beneath the button, still
+   left- and right-anchored. */
+@media (max-width: 500px) {
+  .hero-stage .label { top: calc(100% + 34 * var(--u)); transform: none; font-size: calc(15 * var(--u)); }
+  .hero-stage .label.label-l { left: calc(6 * var(--u)); }
+  .hero-stage .label.label-r { right: calc(6 * var(--u)); }
+}

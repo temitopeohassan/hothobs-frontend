@@ -14,15 +14,16 @@ export const brand = {
   message: 'Good food. Good moments.',
   positioning:
     'A contemporary Nigerian food brand offering thoughtfully prepared meals and culinary experiences for everyday dining, sharing and special occasions.',
-  instagram: 'https://www.instagram.com/hothobscuisines/?hl=en',
+  instagram: 'https://instagram.com/hothobscuisines',
+  facebook: 'https://facebook.com/hothobscuisines',
 }
 
 export const contact = {
-  phone: '+234 000 000 0000', // TODO verify
-  whatsapp: '2340000000000', // TODO verify — digits only, country code first
+  phone: '0818 648 6888',
+  whatsapp: '2348186486888', // digits only, country code first
   email: 'hello@hothobscuisines.com', // TODO verify
-  address: 'Lagos, Nigeria', // TODO verify full address
-  mapQuery: 'Lagos, Nigeria', // TODO verify
+  address: '5 Alake Onile-Ere Crescent, Lagos, Nigeria',
+  mapQuery: '5 Alake Onile-Ere Crescent, Lagos, Nigeria',
 }
 
 // TODO verify every line with Hothobs before publishing.
@@ -52,7 +53,7 @@ export const orderingInfo = [
   },
   {
     title: 'Payment',
-    body: 'Bank transfer on confirmation. Card payment is coming soon.',
+    body: 'Paid online through Paystack — card, bank transfer or USSD. Your order is confirmed as soon as payment goes through.',
   },
 ]
 
@@ -111,42 +112,65 @@ export const occasions = [
 ]
 
 /**
- * The three panels the hero rotates through.
+ * ─────────────────────────────────────────────────────────────
+ *  THE HERO
+ * ─────────────────────────────────────────────────────────────
+ *  A fixed composition: exactly one feature is "on" at a time. Its
+ *  photograph is the full-bleed backdrop and its name is the headline.
+ *  The other two sit in the left and right slots, cropped by the screen
+ *  edges — click one to promote it. The rotation is fully reversible.
  *
- * TODO drop the real photographs into `public/hero/` at the paths below.
- * Until a file exists the slide falls back to a labelled placeholder tile, so
- * the page still works — but do not launch on placeholders.
- * Landscape-ish, roughly square crops work best (about 1000x950 or larger).
+ *  Photography is licensed Unsplash stock standing in for Hothobs' own
+ *  kitchen. TODO replace every `photo` id with real Hothobs photography
+ *  and rewrite each `alt` to describe the picture actually used.
+ *
+ *  `backdrop` is a wide crop for the background, `cutout` a square crop
+ *  for the circular side slot — same photograph, two framings.
  */
-export const heroSlides = [
+const unsplash = (id, w, h) =>
+  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&h=${h}&q=72`
+
+export const heroEyebrow = 'FROM THE POT'
+
+export const heroFeatures = [
   {
-    id: 'pot',
-    type: 'illustration',
-    label: 'our cooking pot',
+    id: 'soups',
+    name: 'SOUPS',
+    photo: 'photo-1596797038530-2c107229654b',
+    // TODO write an alt description of the actual photograph used.
+    alt: 'A wide pot of Hothobs soup cooking down on the fire',
+    lede: 'Cooked long and seasoned properly, straight from the pot it was made in.',
+    ledeTail: 'Order before 4:00pm and it goes out the same day.',
+    ctaLabel: 'ORDER NOW',
+    ctaTo: '/menu?category=soups',
+  },
+  {
+    id: 'grills',
+    name: 'GRILLS',
+    photo: 'photo-1555939594-58d7cb561ad1',
+    // TODO write an alt description of the actual photograph used.
+    alt: 'Peppered meat and skewers coming off the Hothobs grill',
+    lede: 'Proteins by the piece or the portion, peppered and taken off the fire hot.',
+    ledeTail: 'Order before 4:00pm and it goes out the same day.',
+    ctaLabel: 'ORDER NOW',
+    ctaTo: '/menu?category=proteins',
   },
   {
     id: 'catering',
-    type: 'photo',
-    src: '/hero/catering-event.jpg',
+    name: 'CATERING',
+    photo: 'photo-1498837167922-ddd27525d352',
     // TODO write an alt description of the actual photograph used.
-    alt: 'Hothobs Cuisines catering a table of guests at an event',
-    caption: 'Catering for your occasion',
-    label: 'a catering event',
-    tone: 'deep',
-    placeholder: 'Catering event photograph',
+    alt: 'A Hothobs catering spread laid out across a long table',
+    lede: 'Weddings, offices and Sunday gatherings, cooked to quantity and served hot.',
+    ledeTail: 'Tell us the date and the headcount and we will plan it with you.',
+    ctaLabel: 'PLAN AN EVENT',
+    ctaTo: '/catering',
   },
-  {
-    id: 'dish',
-    type: 'photo',
-    src: '/hero/signature-dish.jpg',
-    // TODO write an alt description of the actual photograph used.
-    alt: 'A plated Hothobs Cuisines signature dish',
-    caption: 'Straight from the pot',
-    label: 'a signature dish',
-    tone: 'gold',
-    placeholder: 'Signature dish photograph',
-  },
-]
+].map((f) => ({
+  ...f,
+  backdrop: unsplash(f.photo, 1600, 900),
+  cutout: unsplash(f.photo, 560, 560),
+}))
 
 export const gallery = {
   categories: ['Food', 'Events', 'Behind the Scenes', 'People', 'Hothobs Moments'],

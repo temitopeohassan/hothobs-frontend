@@ -33,6 +33,10 @@ export default function Product() {
       key: `${product.slug}|${portion.id}|${Object.values(choices).join('-')}|${notes}`,
       slug: product.slug,
       name: product.name,
+      // The server prices the order from these ids — see the backend's
+      // src/lib/catalogue.js. unitPrice below is only what we show.
+      portionId: portion.id,
+      options: choices,
       portionLabel: portion.label,
       optionLabels: chosen.filter(Boolean).map((c) => c.label),
       notes,

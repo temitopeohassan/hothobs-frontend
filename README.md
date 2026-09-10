@@ -1,28 +1,38 @@
 # hothobs-frontend
 Repo for the Hothobs Cuisine  website
 
-## Hero photographs
+## The hero
 
-The home page hero rotates through three panels, defined by `heroSlides` in
-`src/data/site.js`. Two of them expect real photographs in `public/hero/`:
+The home page opens on a full-viewport hero built from a fixed composition
+rather than fluid layout: every length in `src/styles/hero.css` is
+`calc(N * var(--u))`, where `--u` is one design pixel measured off a
+1353 x 1163 reference. Change `--u` and the whole thing scales as a unit —
+do not substitute raw `px` values into it.
 
-| File                 | Shows                    |
-| -------------------- | ------------------------ |
-| `catering-event.jpg` | A Hothobs catering event |
-| `signature-dish.jpg` | A plated signature dish  |
+Three features rotate: **SOUPS**, **GRILLS** and **CATERING**, defined by
+`heroFeatures` in `src/data/site.js`. Exactly one is on screen — its
+photograph is the backdrop and its name is the headline — and the other two
+sit in the left and right slots, cropped by the screen edges. Clicking one
+promotes it. The rotation is fully reversible.
 
-Until a file exists, that slide shows a labelled placeholder tile so the page
-still works — **do not launch on placeholders.**
+**The photographs are licensed Unsplash stock standing in for Hothobs' own
+kitchen.** Replace each feature's `photo` id with real Hothobs photography
+before launch and rewrite its `alt` to describe the picture actually used.
+Each id is used twice: a wide crop for the backdrop and a square crop for
+the circular side slot.
 
-- Roughly square crops, about 1000x950 or larger. The hero renders at a 21:20
-  ratio with `object-fit: cover`, so much wider images get cropped top and
-  bottom.
-- JPEG at ~80% quality, ideally under 300KB. This is the first thing a visitor
-  sees, so it should load fast.
-- Update each slide's `alt` text in `src/data/site.js` to describe the
-  photograph you actually used — they are marked TODO.
+Two things in there are load-bearing and easy to break:
 
-The third panel is the drawn cooking pot, which needs no asset.
+- All three cut-outs live in **both** slots as sibling `<img>` tags, and
+  switching only toggles a class. Reassigning `img.src` instead would leave
+  the browser painting the old picture until the new file downloaded.
+- The backdrop layers cross-fade, and the outgoing one is held underneath
+  until the incoming one has arrived, so a photograph that is not yet
+  decoded cannot open a bare gap mid-swap.
+
+The entrance animation runs once and then removes itself. It is skipped
+entirely for `prefers-reduced-motion`, and for a tab that was never in
+front.
 
 ## Local development
 

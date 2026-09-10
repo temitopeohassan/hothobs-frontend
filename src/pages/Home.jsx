@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
 import ProductCard from '../components/ProductCard.jsx'
 import SteamRule from '../components/SteamRule.jsx'
-import HeroCarousel from '../components/HeroCarousel.jsx'
+import Hero from '../components/Hero.jsx'
 import { categories, featured, signature } from '../data/menu.js'
-import { brand, contact, orderingInfo, testimonials, gallery, openingHours } from '../data/site.js'
+import { brand, contact, orderingInfo, testimonials, gallery } from '../data/site.js'
 
 export default function Home() {
   const picks = featured()
@@ -11,39 +11,7 @@ export default function Home() {
 
   return (
     <>
-      <section className="hero">
-        <div className="wrap hero-in">
-          <div>
-            <h1>
-              Good food.<br />
-              <em>Good moments.</em>
-            </h1>
-            <p className="hero-lede">
-              Deliciously prepared meals made for everyday cravings, family moments and special occasions.
-            </p>
-            <div className="hero-cta">
-              <Link className="btn btn-gold" to="/menu">Order now</Link>
-              <Link className="btn btn-outline" to="/menu">Explore our menu</Link>
-            </div>
-            <div className="hero-meta">
-              <div>
-                <strong>{openingHours[0].hours.split('–')[1].trim()}</strong>
-                weekday kitchen close
-              </div>
-              <div>
-                <strong>{categories.length}</strong>
-                menu categories
-              </div>
-              <div>
-                <strong>Lagos</strong>
-                delivery and pickup
-              </div>
-            </div>
-          </div>
-          <HeroCarousel />
-        </div>
-        <SteamRule color="var(--cream)" />
-      </section>
+      <Hero />
 
       <section className="band band-cream">
         <div className="wrap">
