@@ -132,29 +132,11 @@ const unsplash = (id, w, h) =>
 
 export const heroEyebrow = 'FROM THE POT'
 
+// ORDER MATTERS. Hero.jsx features the first entry on load and drops the
+// other two into the side slots in the order they appear here: [1] is the
+// left cut-out, [2] is the right one. Catering leads; Meals sits left and
+// Soups right.
 export const heroFeatures = [
-  {
-    id: 'soups',
-    name: 'SOUPS',
-    photo: 'photo-1596797038530-2c107229654b',
-    // TODO write an alt description of the actual photograph used.
-    alt: 'A wide pot of Hothobs soup cooking down on the fire',
-    lede: 'Cooked long and seasoned properly, straight from the pot it was made in.',
-    ledeTail: 'Order before 4:00pm and it goes out the same day.',
-    ctaLabel: 'ORDER NOW',
-    ctaTo: '/menu?category=soups',
-  },
-  {
-    id: 'grills',
-    name: 'GRILLS',
-    photo: 'photo-1555939594-58d7cb561ad1',
-    // TODO write an alt description of the actual photograph used.
-    alt: 'Peppered meat and skewers coming off the Hothobs grill',
-    lede: 'Proteins by the piece or the portion, peppered and taken off the fire hot.',
-    ledeTail: 'Order before 4:00pm and it goes out the same day.',
-    ctaLabel: 'ORDER NOW',
-    ctaTo: '/menu?category=proteins',
-  },
   {
     id: 'catering',
     name: 'CATERING',
@@ -165,6 +147,31 @@ export const heroFeatures = [
     ledeTail: 'Tell us the date and the headcount and we will plan it with you.',
     ctaLabel: 'PLAN AN EVENT',
     ctaTo: '/catering',
+  },
+  {
+    id: 'meals',
+    name: 'MEALS',
+    photo: 'photo-1504674900247-0877df9cc836',
+    // TODO write an alt description of the actual photograph used.
+    alt: 'A full Hothobs plate, protein and sides, served hot',
+    lede: 'The full plate — rice, swallow and protein, with the sides that finish it.',
+    ledeTail: 'Order before 4:00pm and it goes out the same day.',
+    ctaLabel: 'ORDER NOW',
+    // The whole menu, not ?category=main-meals — that category exists in
+    // menu.js but has no dishes in it yet, so it renders "Nothing in this
+    // category yet". Point this at main-meals once it is stocked.
+    ctaTo: '/menu',
+  },
+  {
+    id: 'soups',
+    name: 'SOUPS',
+    photo: 'photo-1596797038530-2c107229654b',
+    // TODO write an alt description of the actual photograph used.
+    alt: 'A wide pot of Hothobs soup cooking down on the fire',
+    lede: 'Cooked long and seasoned properly, straight from the pot it was made in.',
+    ledeTail: 'Order before 4:00pm and it goes out the same day.',
+    ctaLabel: 'ORDER NOW',
+    ctaTo: '/menu?category=soups',
   },
 ].map((f) => ({
   ...f,

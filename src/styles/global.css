@@ -116,7 +116,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
   background: var(--green); color: var(--cream);
 }
 .header-in { display: flex; align-items: center; gap: 1.5rem; height: 72px; }
-.logo { display: flex; align-items: center; }
+/* Never shrinks: the wordmark is unreadable the moment it is squeezed, so
+   on a narrow bar the buttons give up their width, not the logo. */
+.logo { display: flex; align-items: center; flex: 0 0 auto; }
 /* The wordmark's right half is dark green, which disappears on the dark green
    bars, so it sits on a light chip. Swap for a plain <img> if a reversed
    (light) version of the logo is ever supplied. */
@@ -132,7 +134,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .nav a { font-size: 0.95rem; font-weight: 500; padding: 0.35rem 0; border-bottom: 2px solid transparent; }
 .nav a:hover { border-color: rgba(248, 208, 88, 0.6); }
 .nav a.on { border-color: var(--gold); }
-.header-actions { display: flex; align-items: center; gap: 0.75rem; margin-left: 1rem; }
+.header-actions { display: flex; align-items: center; gap: 0.75rem; margin-left: 1rem; flex: 0 0 auto; }
+.header-actions .btn, .cart-btn, .account-link { white-space: nowrap; }
 .cart-btn {
   position: relative; background: transparent; border: 0; cursor: pointer;
   color: var(--cream); display: flex; align-items: center; gap: 0.4rem; font-weight: 600;
@@ -151,11 +154,28 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .burger { display: block; margin-left: auto; }
   .header-actions { margin-left: 0; }
   .mobile-nav.open { display: block; }
+  /* Sign in / the account name move into the burger menu — see Header.jsx.
+     Cart and Order now are the only two actions worth the bar's width. */
+  .header-actions .account-link { display: none; }
 }
 
 @media (max-width: 560px) {
   .logo-chip { padding: 5px 9px; border-radius: 10px; }
   .logo-chip img { height: 36px; }
+  /* Buys back the width the logo needs: tighter bar, smaller Order now. */
+  .header-in { gap: 0.6rem; }
+  .header-actions { gap: 0.5rem; }
+  .header-actions .btn-sm { padding: 0.5rem 0.7rem; font-size: 0.78rem; }
+  .cart-btn { font-size: 0.88rem; gap: 0.3rem; }
+  .cart-count { min-width: 20px; height: 20px; padding: 0 5px; font-size: 0.72rem; }
+  .burger { padding: 0.25rem; }
+}
+
+/* Smallest phones (360px and below). Everything above still fits at 400px;
+   this tier only exists so the logo stays whole on a 320px screen. */
+@media (max-width: 380px) {
+  .logo-chip img { height: 32px; }
+  .header-actions .btn-sm { padding: 0.45rem 0.6rem; font-size: 0.72rem; }
 }
 
 /* ── Hero ────────────────────────────────────────────────────
