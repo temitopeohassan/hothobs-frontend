@@ -8,6 +8,7 @@ import Home from './pages/Home.jsx'
 import Menu from './pages/Menu.jsx'
 import Product from './pages/Product.jsx'
 import Catering from './pages/Catering.jsx'
+import CateringMenu from './pages/CateringMenu.jsx'
 import About from './pages/About.jsx'
 import Gallery from './pages/Gallery.jsx'
 import Contact from './pages/Contact.jsx'
@@ -39,19 +40,15 @@ export default function App() {
           <Route path="/menu" element={<Menu />} />
           <Route path="/menu/:slug" element={<Product />} />
           <Route path="/catering" element={<Catering />} />
+          <Route path="/catering/menu" element={<CateringMenu />} />
           <Route path="/about" element={<About />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/order" element={<Order />} />
-          {/* Where Paystack returns the customer after they pay. */}
-          <Route
-            path="/order/complete"
-            element={
-              <RequireAuth>
-                <OrderComplete />
-              </RequireAuth>
-            }
-          />
+          {/* Where Paystack returns the customer after they pay. Open to
+              guests: the page proves the order with its claim token, and a
+              sign-in wall here would strand someone who has just paid. */}
+          <Route path="/order/complete" element={<OrderComplete />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route

@@ -1,22 +1,103 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NavLink, Link, useLocation } from 'react-router-dom'
 import { useCart } from '../context/CartContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 
+// A link with `children` becomes a dropdown. `to` is still the parent's own
+// page, so Catering stays reachable in one click for anyone who never opens
+// the menu — and for search engines, which do not.
 const links = [
   { to: '/', label: 'Home' },
   { to: '/menu', label: 'Menu' },
-  { to: '/catering', label: 'Catering' },
+  {
+    to: '/catering',
+    label: 'Catering',
+    children: [
+      { to: '/catering', label: 'Catering & large orders' },
+      { to: '/catering/menu', label: 'Catering menu' },
+    ],
+  },
   { to: '/about', label: 'About' },
   { to: '/gallery', label: 'Gallery' },
   { to: '/contact', label: 'Contact' },
 ]
+
+/**
+ * One nav item that opens a submenu.
+ *
+ * Pointer users get it on hover; keyboard and touch users get it on click,
+ * which is why the trigger is a real button with aria-expanded rather than a
+ * CSS-only :hover menu. Escape closes it and returns focus to the trigger.
+ */
+function NavDropdown({ link, active }) {
+  const [open, setOpen] = useState(false)
+  const holder = useRef(null)
+  const trigger = useRef(null)
+
+  useEffect(() => {
+    if (!open) return undefined
+    const onDown = (event) => {
+      if (!holder.current?.contains(event.target)) setOpen(false)
+    }
+    const onKey = (event) => {
+      if (event.key !== 'Escape') return
+      setOpen(false)
+      trigger.current?.focus()
+    }
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  return (
+    <div
+      className="nav-drop"
+      ref={holder}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        type="button"
+        ref={trigger}
+        className={`nav-drop-trigger ${active ? 'on' : ''}`}
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        {link.label}
+        <svg width="10" height="7" viewBox="0 0 10 7" aria-hidden="true">
+          <path d="M1 1.5L5 5.5L9 1.5" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+        </svg>
+      </button>
+
+      <div className={`nav-drop-menu ${open ? 'open' : ''}`}>
+        {link.children.map((c) => (
+          <NavLink
+            key={c.to}
+            to={c.to}
+            end
+            className={({ isActive }) => (isActive ? 'on' : '')}
+            onClick={() => setOpen(false)}
+          >
+            {c.label}
+          </NavLink>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 export default function Header() {
   const [open, setOpen] = useState(false)
   const { count, openCart } = useCart()
   const { user } = useAuth()
   const location = useLocation()
+
+  // A parent counts as current anywhere in its section — /catering/menu should
+  // still light up Catering.
+  const inSection = (to) => location.pathname === to || location.pathname.startsWith(`${to}/`)
 
   return (
     <header className="header">
@@ -28,11 +109,15 @@ export default function Header() {
         </Link>
 
         <nav className="nav" aria-label="Main">
-          {links.map((l) => (
-            <NavLink key={l.to} to={l.to} end={l.to === '/'} className={({ isActive }) => (isActive ? 'on' : '')}>
-              {l.label}
-            </NavLink>
-          ))}
+          {links.map((l) =>
+            l.children ? (
+              <NavDropdown key={l.to} link={l} active={inSection(l.to)} />
+            ) : (
+              <NavLink key={l.to} to={l.to} end={l.to === '/'} className={({ isActive }) => (isActive ? 'on' : '')}>
+                {l.label}
+              </NavLink>
+            )
+          )}
         </nav>
 
         <div className="header-actions">
@@ -62,11 +147,32 @@ export default function Header() {
         </button>
       </div>
 
+      {/* On a phone the submenu is simply indented under its parent — a
+          dropdown inside an already-open drawer is one tap too many. The
+          child pointing at the parent's own page is dropped, since the
+          parent link above it already goes there. */}
       <div className={`mobile-nav ${open ? 'open' : ''}`}>
         {links.map((l) => (
-          <Link key={l.to} to={l.to} onClick={() => setOpen(false)} style={{ color: location.pathname === l.to ? 'var(--warm-gold)' : undefined }}>
-            {l.label}
-          </Link>
+          <div key={l.to}>
+            <Link
+              to={l.to}
+              onClick={() => setOpen(false)}
+              style={{ color: location.pathname === l.to ? 'var(--warm-gold)' : undefined }}
+            >
+              {l.label}
+            </Link>
+            {l.children?.filter((c) => c.to !== l.to).map((c) => (
+              <Link
+                key={c.to}
+                to={c.to}
+                className="mobile-sub"
+                onClick={() => setOpen(false)}
+                style={{ color: location.pathname === c.to ? 'var(--warm-gold)' : undefined }}
+              >
+                {c.label}
+              </Link>
+            ))}
+          </div>
         ))}
         <Link to={user ? '/account' : '/login'} onClick={() => setOpen(false)}>
           {user ? 'Your account' : 'Sign in'}

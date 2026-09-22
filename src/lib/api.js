@@ -10,14 +10,17 @@ export class ApiError extends Error {
   }
 }
 
-async function request(path, { method = 'GET', body, signal } = {}) {
+async function request(path, { method = 'GET', body, signal, headers } = {}) {
   let response
   try {
     response = await fetch(`${BASE}${path}`, {
       method,
       // Sends and stores the httpOnly session cookie.
       credentials: 'include',
-      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      headers: {
+        ...(body ? { 'Content-Type': 'application/json' } : null),
+        ...headers,
+      },
       body: body ? JSON.stringify(body) : undefined,
       signal,
     })

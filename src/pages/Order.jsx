@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { api } from '../lib/api.js'
+import { rememberGuestOrder } from '../lib/guestOrders.js'
 import { naira } from '../data/menu.js'
 import { orderingInfo } from '../data/site.js'
 
@@ -17,14 +18,32 @@ const defaultZones = [
 
 export default function Order() {
   const { lines, subtotal, setQty, remove } = useCart()
-  const { user, ready } = useAuth()
+  const { user, ready, login } = useAuth()
 
   const [zones, setZones] = useState(defaultZones)
   const [zone, setZone] = useState('mainland')
-  const [form, setForm] = useState({ name: '', phone: '', address: '', when: '', notes: '' })
+  // Set once the customer chooses to check out without an account. Signing
+  // in later clears it, so their details come from the account instead.
+  const [asGuest, setAsGuest] = useState(false)
+  const [form, setForm] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    address: '',
+    when: '',
+    notes: '',
+  })
   const [errors, setErrors] = useState({})
   const [message, setMessage] = useState('')
   const [placing, setPlacing] = useState(false)
+
+  // The sign-in form on the gate below. Kept on this page rather than
+  // sending them to /login and back, so the cart and the order they were
+  // about to place stay put underneath.
+  const [credentials, setCredentials] = useState({ email: '', password: '' })
+  const [signInErrors, setSignInErrors] = useState({})
+  const [signInMessage, setSignInMessage] = useState('')
+  const [signingIn, setSigningIn] = useState(false)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -40,6 +59,7 @@ export default function Order() {
   // Fill in what we already know about a signed-in customer.
   useEffect(() => {
     if (!user) return
+    setAsGuest(false)
     setForm((s) => ({
       ...s,
       name: s.name || user.name,
@@ -48,11 +68,41 @@ export default function Order() {
   }, [user])
 
   const set = (key) => (event) => setForm((s) => ({ ...s, [key]: event.target.value }))
+  const setCredential = (key) => (event) =>
+    setCredentials((s) => ({ ...s, [key]: event.target.value }))
+
+  /**
+   * Signs in without leaving checkout. There is no redirect on success:
+   * `user` arrives from the context and this same page re-renders as the
+   * checkout form, cart intact and their name and phone already filled in.
+   */
+  const signIn = async (event) => {
+    event.preventDefault()
+    setSigningIn(true)
+    setSignInErrors({})
+    setSignInMessage('')
+    try {
+      await login(credentials)
+    } catch (error) {
+      setSignInErrors(error.fields ?? {})
+      setSignInMessage(error.message)
+    } finally {
+      setSigningIn(false)
+    }
+  }
+
   const selectedZone = zones.find((z) => z.id === zone)
   const fee = selectedZone?.fee ?? 0
   const total = subtotal + fee
   const isPickup = zone === 'pickup'
-  const canPlace = form.name && (isPickup || form.address) && lines.length > 0
+  // A guest has no account to reach them through, so the details the kitchen
+  // needs have to come from the form. The server checks all of this again.
+  const guest = !user
+  const canPlace =
+    form.name &&
+    (isPickup || form.address) &&
+    (!guest || (form.email && form.phone)) &&
+    lines.length > 0
 
   /**
    * Places the order and hands the customer to Paystack.
@@ -69,9 +119,12 @@ export default function Order() {
     setErrors({})
     setMessage('')
     try {
-      const { payment } = await api.post('/orders', {
+      const { payment, orderToken } = await api.post('/orders', {
         name: form.name,
         phone: form.phone,
+        // The server takes a signed-in customer's email from their account
+        // and ignores anything we send, so only a guest needs to supply it.
+        ...(guest ? { email: form.email } : {}),
         zone,
         payment: 'paystack',
         address: isPickup ? '' : form.address,
@@ -88,6 +141,9 @@ export default function Order() {
       if (!payment?.authorizationUrl) {
         throw new Error('Paystack did not give us a checkout link. Please try again.')
       }
+      // A guest order has no account behind it, so this token is the only
+      // way /order/complete can read it back. Store it before we leave.
+      if (orderToken) rememberGuestOrder(payment.reference, orderToken)
       // Leaves the site. Nothing after this runs.
       window.location.assign(payment.authorizationUrl)
     } catch (error) {
@@ -109,7 +165,9 @@ export default function Order() {
     )
   }
 
-  // Checking out needs an account, so hold here until we know who this is.
+  // How we address the customer depends on whether they are signed in, so
+  // hold here until we know — otherwise the page flashes the sign-in choice
+  // at someone who never needed to make it.
   if (!ready) {
     return (
       <section className="band band-cream">
@@ -120,20 +178,79 @@ export default function Order() {
     )
   }
 
-  if (!user) {
+  // Offered once, before the form: signing in and checking out as a guest
+  // sit side by side, so neither reads as the only way through. Nothing
+  // here blocks the order — it only asks how they would like to place it.
+  if (guest && !asGuest) {
     return (
       <section className="band band-cream">
-        <div className="wrap panel confirm">
-          <h1 style={{ fontSize: '2rem' }}>Sign in to check out</h1>
-          <p>
-            Your cart is safe. Sign in — or create an account, it takes a moment — and we will keep
-            this order in your history and fill your details in next time.
-          </p>
-          <div className="pdp-buy" style={{ justifyContent: 'center' }}>
-            <Link className="btn btn-gold" to="/login" state={{ from: '/order' }}>Sign in</Link>
-            <Link className="btn btn-outline-dark" to="/register" state={{ from: '/order' }}>
-              Create an account
-            </Link>
+        <div className="wrap">
+          <div className="head">
+            <h1 style={{ fontSize: 'clamp(2rem, 5vw, 2.8rem)' }}>How would you like to check out?</h1>
+            <p>
+              Your cart is safe either way. Sign in and we keep this order in your history and fill
+              your details in next time — or check out as a guest and order in a couple of minutes.
+            </p>
+          </div>
+
+          <div className="gate">
+            <form className="panel" onSubmit={signIn} noValidate>
+              <h3>Sign in</h3>
+              {signInMessage && <p className="form-error" role="alert">{signInMessage}</p>}
+
+              <div className="field">
+                <label className="field-label" htmlFor="gate-email">Email address</label>
+                <input id="gate-email" type="email" autoComplete="email"
+                  value={credentials.email} onChange={setCredential('email')}
+                  aria-invalid={Boolean(signInErrors.email)}
+                  aria-describedby={signInErrors.email ? 'gate-email-error' : undefined} />
+                {signInErrors.email && (
+                  <p className="field-error" id="gate-email-error">{signInErrors.email}</p>
+                )}
+              </div>
+
+              <div className="field">
+                <label className="field-label" htmlFor="gate-password">Password</label>
+                <input id="gate-password" type="password" autoComplete="current-password"
+                  value={credentials.password} onChange={setCredential('password')}
+                  aria-invalid={Boolean(signInErrors.password)}
+                  aria-describedby={signInErrors.password ? 'gate-password-error' : undefined} />
+                {signInErrors.password && (
+                  <p className="field-error" id="gate-password-error">{signInErrors.password}</p>
+                )}
+              </div>
+
+              <button className="btn btn-gold btn-block" type="submit" disabled={signingIn}>
+                {signingIn ? 'Signing in…' : 'Sign in and check out'}
+              </button>
+
+              <div className="gate-foot">
+                <p className="note" style={{ textAlign: 'center' }}>
+                  Don&rsquo;t have an account?{' '}
+                  <Link className="link-gold" to="/register" state={{ from: '/order' }}>
+                    Create an account now
+                  </Link>
+                </p>
+              </div>
+            </form>
+
+            <div className="panel">
+              <h3>Check out as a guest</h3>
+              <p>
+                No account and no password — just the details the kitchen needs to cook your order
+                and reach you about it.
+              </p>
+              <p className="note">
+                A guest order still gets a reference and a receipt by email. It will not be saved to
+                an account, so keep that email.
+              </p>
+              <div className="gate-foot">
+                <button type="button" className="btn btn-outline-dark btn-block"
+                  onClick={() => setAsGuest(true)}>
+                  Continue as a guest
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -158,6 +275,13 @@ export default function Order() {
           <div>
             <div className="panel">
               <h3>Your details</h3>
+              {guest && (
+                <p className="note" style={{ marginTop: '-0.4rem', marginBottom: '1rem' }}>
+                  Checking out as a guest.{' '}
+                  <Link to="/login" state={{ from: '/order' }}>Sign in instead</Link> to save this
+                  order to an account.
+                </p>
+              )}
               <div className="two">
                 <div className="field" style={{ margin: 0 }}>
                   <label htmlFor="o-name" className="field-label">Full name</label>
@@ -167,13 +291,31 @@ export default function Order() {
                 </div>
                 <div className="field" style={{ margin: 0 }}>
                   <label htmlFor="o-phone" className="field-label">
-                    Phone <span className="field-hint">optional, but it is the fastest way to reach you</span>
+                    Phone{' '}
+                    <span className="field-hint">
+                      {guest
+                        ? 'so we can call you about this order'
+                        : 'optional, but it is the fastest way to reach you'}
+                    </span>
                   </label>
                   <input id="o-phone" type="tel" autoComplete="tel" value={form.phone}
                     onChange={set('phone')} aria-invalid={Boolean(errors.phone)} />
                   {errors.phone && <p className="field-error">{errors.phone}</p>}
                 </div>
               </div>
+
+              {/* A signed-in customer's receipt goes to their account email.
+                  For a guest this is the only address we have. */}
+              {guest && (
+                <div className="field" style={{ marginBottom: 0 }}>
+                  <label htmlFor="o-email" className="field-label">
+                    Email <span className="field-hint">your receipt and order reference go here</span>
+                  </label>
+                  <input id="o-email" type="email" autoComplete="email" value={form.email}
+                    onChange={set('email')} aria-invalid={Boolean(errors.email)} />
+                  {errors.email && <p className="field-error">{errors.email}</p>}
+                </div>
+              )}
             </div>
 
             <div className="panel">
@@ -274,7 +416,17 @@ export default function Order() {
               </button>
               {!canPlace && (
                 <p className="note" style={{ marginTop: '0.75rem' }}>
-                  Add your name{!isPickup && ' and delivery address'} to place this order.
+                  Add your{' '}
+                  {[
+                    !form.name && 'name',
+                    guest && !form.email && 'email',
+                    guest && !form.phone && 'phone number',
+                    !isPickup && !form.address && 'delivery address',
+                  ]
+                    .filter(Boolean)
+                    .join(', ')
+                    .replace(/, ([^,]*)$/, ' and $1')}{' '}
+                  to place this order.
                 </p>
               )}
             </div>
