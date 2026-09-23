@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { brand, contact, openingHours } from '../data/site.js'
-import { categories } from '../data/menu.js'
+import { menus } from '../data/menu.js'
 
 export default function Footer() {
   return (
@@ -26,12 +26,16 @@ export default function Footer() {
             </p>
           </div>
 
+          {/* The three menus are priced differently — per head, by the litre,
+              by the pack — so the footer sends people to the right one rather
+              than listing dishes that mean nothing out of context. */}
           <div>
-            <h4>Menu</h4>
+            <h4><Link to="/menu">Menus</Link></h4>
             <ul>
-              {categories.slice(0, 6).map((c) => (
-                <li key={c.id}><Link to={`/menu?category=${c.id}`}>{c.name}</Link></li>
+              {menus.map((m) => (
+                <li key={m.id}><Link to={m.path}>{m.name}</Link></li>
               ))}
+              <li><Link to="/catering/menu">Catering menu</Link></li>
             </ul>
           </div>
 
@@ -43,6 +47,8 @@ export default function Footer() {
               <li><Link to="/gallery">Gallery</Link></li>
               <li><Link to="/contact">Contact</Link></li>
               <li><Link to="/order">Order</Link></li>
+              {/* The header bar no longer carries this, so the footer does. */}
+              <li><Link to="/account">Your account</Link></li>
             </ul>
           </div>
 

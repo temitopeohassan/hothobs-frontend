@@ -2,27 +2,36 @@ import { Link } from 'react-router-dom'
 import SteamRule from '../components/SteamRule.jsx'
 import { gallery } from '../data/site.js'
 
-const sections = [
+/**
+ * Who Hothobs is, in the brand's own words.
+ *
+ * The copy here comes from the About Us document supplied by Hothobs
+ * (pdfs/AboutHothobs.pdf), with one addition confirmed separately by them:
+ * the Culinary Academy, which the document does not mention. Nothing else
+ * is invented — a claim Hothobs has not confirmed does not belong here.
+ */
+
+// "Our menu cuts across borders." The list is illustrative, not exhaustive,
+// which is why it ends open.
+const cuisines = ['Nigerian', 'French', 'Italian', 'Chinese', 'And more from around the world']
+
+// The four things the brand says great cuisine is about, beyond hunger.
+const values = [
   {
-    title: 'Our approach to food',
-    body: [
-      'We cook Nigerian food as it is meant to be cooked, without shortcuts that show up on the plate. Stock is built from bones and time. Pepper is ground the morning it is used. Rice is cooked until the base catches, because that is where the flavour is.',
-      'Nothing leaves the kitchen that we would not serve at our own table.',
-    ],
+    title: 'Flavour',
+    body: 'The first thing we get right and the last thing we compromise on.',
   },
   {
-    title: 'Quality and preparation',
-    body: [
-      'Produce is bought fresh and prepped daily, in quantities we can cook well rather than quantities that fill a fridge. Portions are weighed so the plate you get on Tuesday matches the one you got last month.',
-      'Food is packed hot, sealed properly, and sent out in the order it was cooked.',
-    ],
+    title: 'Presentation',
+    body: 'Food that is worth looking at before anyone picks up a fork.',
   },
   {
-    title: 'Hospitality',
-    body: [
-      'Feeding people is the whole job. That means answering the phone, being straight about what is available, and getting food where it needs to be when it needs to be there.',
-      'Hothobs Cuisines sits alongside Hothobs Culinary Academy — the same kitchen values, one cooking for you, one teaching the next set of cooks.',
-    ],
+    title: 'Creativity',
+    body: 'Different flavours, techniques and ingredients, explored rather than repeated.',
+  },
+  {
+    title: 'Experience',
+    body: 'Everything that comes with every bite, not just what is on the plate.',
   },
 ]
 
@@ -31,10 +40,10 @@ export default function About() {
     <>
       <section className="band band-deep" style={{ paddingBottom: '2rem' }}>
         <div className="wrap">
-          <h1 style={{ color: 'var(--cream)' }}>From the pot to the table</h1>
-          <p style={{ fontSize: '1.1rem', maxWidth: '48ch' }}>
-            Hothobs Cuisines is a contemporary Nigerian food brand cooking for everyday dining, sharing
-            and special occasions.
+          <h1 style={{ color: 'var(--cream)' }}>About us</h1>
+          <p style={{ fontSize: '1.1rem', maxWidth: '52ch' }}>
+            Hothobs Cuisines is a culinary brand passionate about creating exceptional food inspired by
+            the richness and diversity of global cuisine.
           </p>
         </div>
         <SteamRule color="var(--cream)" />
@@ -43,16 +52,17 @@ export default function About() {
       <section className="band band-cream" style={{ paddingTop: '2rem' }}>
         <div className="wrap grid grid-2" style={{ alignItems: 'center' }}>
           <div>
-            <h2>Our story</h2>
+            <h2>A menu that cuts across borders</h2>
             <p>
-              Hothobs began with one pot and a short list of dishes cooked properly. Word moved the way it
-              does with food — a plate shared at work, a tray at a family gathering — and the kitchen grew
-              around the demand.
+              Our menu cuts across borders — from Nigerian, French, Italian, Chinese, and other cuisines
+              from around the world.
             </p>
-            <p>
-              Today we cook daily service, weekend specials and catering for events across Lagos, and the
-              rule has not changed: cook it the way you would want it cooked for you.
-            </p>
+            <p style={{ fontSize: '1.15rem', fontWeight: 600 }}>You think it, we create it!</p>
+            <div className="choices" style={{ marginTop: '1.25rem' }}>
+              {cuisines.map((c) => (
+                <span className="choice" key={c} style={{ cursor: 'default' }}>{c}</span>
+              ))}
+            </div>
           </div>
           <div className="grid grid-2" style={{ gap: '0.85rem' }}>
             {gallery.items.slice(3, 7).map((g) => (
@@ -62,19 +72,44 @@ export default function About() {
         </div>
       </section>
 
-      {sections.map((s, i) => (
-        <section key={s.title} className={`band ${i % 2 === 0 ? 'band-white' : 'band-cream'}`}>
-          <div className="wrap">
-            <h2>{s.title}</h2>
-            {s.body.map((p, j) => <p key={j}>{p}</p>)}
-          </div>
-        </section>
-      ))}
-
-      <section className="band band-green" style={{ textAlign: 'center' }}>
+      <section className="band band-white">
         <div className="wrap">
-          <h2>Come and eat</h2>
-          <p style={{ margin: '0 auto 1.75rem' }}>The menu is open and the pots are on.</p>
+          <div className="head">
+            <h2>More than satisfying hunger</h2>
+            <p>
+              We believe great cuisine is about more than simply satisfying hunger. It is about flavour,
+              presentation, creativity, and the experience that comes with every bite.
+            </p>
+          </div>
+          <div className="info">
+            {values.map((v) => (
+              <div key={v.title}>
+                <strong>{v.title}</strong>
+                <p>{v.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="band band-cream">
+        <div className="wrap">
+          <div className="head" style={{ marginBottom: 0 }}>
+            <h2>Familiar yet exciting</h2>
+            <p>
+              At Hothobs Cuisines, we continually explore different flavours, techniques, and ingredients
+              to create dishes that feel familiar yet exciting, traditional yet innovative.
+            </p>
+          </div>
+        </div>
+      </section>
+
+     <section className="band band-green" style={{ textAlign: 'center' }}>
+        <div className="wrap">
+          <h2>Food, beautifully prepared</h2>
+          <p style={{ margin: '0 auto 1.75rem', maxWidth: '44ch' }}>
+            We create food for people who appreciate good cuisine, beautifully prepared.
+          </p>
           <Link className="btn btn-gold" to="/menu">Order now</Link>
         </div>
       </section>

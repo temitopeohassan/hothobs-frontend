@@ -8,7 +8,15 @@ import { useAuth } from '../context/AuthContext.jsx'
 // the menu — and for search engines, which do not.
 const links = [
   { to: '/', label: 'Home' },
-  { to: '/menu', label: 'Menu' },
+  {
+    to: '/menu',
+    label: 'Meals Menu',
+    children: [
+      { to: '/menu/breakfast', label: 'Breakfast Menu' },
+      { to: '/menu/bowls', label: 'Bowls Menu' },
+      { to: '/menu/packs', label: 'Packs & Boxes' },
+    ],
+  },
   {
     to: '/catering',
     label: 'Catering',
@@ -33,6 +41,23 @@ function NavDropdown({ link, active }) {
   const [open, setOpen] = useState(false)
   const holder = useRef(null)
   const trigger = useRef(null)
+  const closeTimer = useRef(null)
+
+  // Closing on mouseleave the instant the pointer clears the trigger makes
+  // the menu almost unusable: the path from the trigger down to an item
+  // crosses a gap, and any diagonal drift leaves the element on the way.
+  // The delay keeps it open long enough to get there, and re-entering
+  // anywhere in the group cancels the close.
+  const openNow = () => {
+    clearTimeout(closeTimer.current)
+    setOpen(true)
+  }
+  const closeSoon = () => {
+    clearTimeout(closeTimer.current)
+    closeTimer.current = setTimeout(() => setOpen(false), 420)
+  }
+
+  useEffect(() => () => clearTimeout(closeTimer.current), [])
 
   useEffect(() => {
     if (!open) return undefined
@@ -41,6 +66,7 @@ function NavDropdown({ link, active }) {
     }
     const onKey = (event) => {
       if (event.key !== 'Escape') return
+      clearTimeout(closeTimer.current)
       setOpen(false)
       trigger.current?.focus()
     }
@@ -56,15 +82,19 @@ function NavDropdown({ link, active }) {
     <div
       className="nav-drop"
       ref={holder}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
+      onMouseEnter={openNow}
+      onMouseLeave={closeSoon}
+      onFocus={openNow}
     >
       <button
         type="button"
         ref={trigger}
         className={`nav-drop-trigger ${active ? 'on' : ''}`}
         aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          clearTimeout(closeTimer.current)
+          setOpen((v) => !v)
+        }}
       >
         {link.label}
         <svg width="10" height="7" viewBox="0 0 10 7" aria-hidden="true">
@@ -79,7 +109,10 @@ function NavDropdown({ link, active }) {
             to={c.to}
             end
             className={({ isActive }) => (isActive ? 'on' : '')}
-            onClick={() => setOpen(false)}
+            onClick={() => {
+              clearTimeout(closeTimer.current)
+              setOpen(false)
+            }}
           >
             {c.label}
           </NavLink>
@@ -121,9 +154,15 @@ export default function Header() {
         </nav>
 
         <div className="header-actions">
-          <Link className="account-link" to={user ? '/account' : '/login'}>
-            {user ? user.name.split(' ')[0] : 'Sign in'}
-          </Link>
+          {/* No "Sign in" here: the bar is tight once the nav has a dropdown
+              in it, and signing in matters at checkout, which offers it —
+              along with the burger menu and the footer. A signed-in customer
+              still gets their name, because this is their way to /account. */}
+          {user && (
+            <Link className="account-link" to="/account">
+              {user.name.split(' ')[0]}
+            </Link>
+          )}
           <button className="cart-btn" onClick={openCart} aria-label={`Open cart, ${count} items`}>
             Cart
             <span className="cart-count">{count}</span>

@@ -172,6 +172,13 @@ button, input, select, textarea { font: inherit; color: inherit; }
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28); border: 1px solid rgba(255, 248, 232, 0.14);
 }
 .nav-drop-menu.open { display: block; }
+/* The menu sits 8px below the trigger, and that gap belongs to neither of
+   them — crossing it used to read as leaving the group and shut the menu
+   mid-reach. This pad is a child of the menu, so the pointer never leaves.
+   Header.jsx also delays the close; the two together make it selectable. */
+.nav-drop-menu::before {
+  content: ''; position: absolute; left: 0; right: 0; top: -10px; height: 10px;
+}
 .nav-drop-menu a {
   display: block; padding: 0.6rem 0.75rem; border-radius: 9px; border-bottom: 0;
   font-size: 0.92rem; white-space: nowrap;
@@ -256,16 +263,18 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* ── Menu page ───────────────────────────────────────────── */
 .menu-layout { display: grid; grid-template-columns: 220px 1fr; gap: 2.5rem; align-items: start; }
 .catnav { position: sticky; top: 96px; display: flex; flex-direction: column; gap: 0.15rem; }
-.catnav button {
+.catnav button, .catnav a {
   text-align: left; background: none; border: 0; cursor: pointer; padding: 0.55rem 0.75rem;
   border-radius: 8px; font-weight: 600; font-size: 0.95rem; color: var(--ink-soft);
+  display: block;
 }
-.catnav button:hover { background: rgba(0, 64, 32, 0.06); }
-.catnav button.on { background: var(--green); color: var(--cream); }
+.catnav button:hover, .catnav a:hover { background: rgba(0, 64, 32, 0.06); }
+.catnav button.on, .catnav a.on { background: var(--green); color: var(--cream); }
+.catnav .btn { text-align: center; color: var(--cream); }
 @media (max-width: 820px) {
   .menu-layout { grid-template-columns: 1fr; gap: 1.25rem; }
   .catnav { position: static; flex-direction: row; overflow-x: auto; padding-bottom: 0.5rem; }
-  .catnav button { white-space: nowrap; background: var(--white); box-shadow: inset 0 0 0 1px var(--line); }
+  .catnav button, .catnav a { white-space: nowrap; background: var(--white); box-shadow: inset 0 0 0 1px var(--line); }
 }
 
 /* ── Product detail ──────────────────────────────────────── */
@@ -509,3 +518,68 @@ input[aria-invalid='true'], textarea[aria-invalid='true'] { border-color: #a3231
 .badge-cancelled { background: rgba(163, 35, 26, 0.12); color: #7d1a13; }
 
 .empty h3 { margin-top: 0; }
+
+/* ── Menus: the three published menus ────────────────────── */
+
+/* The order minimum. It sits directly under the menu's own lede because it
+   is the one line most likely to waste someone's time if they miss it. */
+.menu-minimum {
+  display: inline-block; margin-top: 0.75rem;
+  padding: 0.4rem 0.9rem; border-radius: 999px;
+  background: rgba(255, 248, 232, 0.12); color: var(--cream);
+  font-size: 0.88rem; font-weight: 700; letter-spacing: 0.01em;
+}
+.menu-group { scroll-margin-top: 96px; }
+.menu-group + .menu-group { margin-top: 3.5rem; }
+.menu-card-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; font-size: 0.94rem; }
+.menu-card-list a { color: var(--ink-soft); }
+.menu-card-list a:hover { color: var(--green); text-decoration: underline; }
+.home-menu-group + .home-menu-group { margin-top: 2.5rem; }
+.home-menu-group h3 { margin: 0 0 0.9rem; font-size: 1.35rem; }
+.home-menu-group h3 .note { font-weight: 400; }
+
+/* What is in a pack, a box or a platter, as Hothobs lists it. */
+.includes { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.3rem; font-size: 0.95rem; }
+.includes li { padding-left: 1.1rem; position: relative; }
+.includes li::before {
+  content: ''; position: absolute; left: 0; top: 0.55em;
+  width: 6px; height: 6px; border-radius: 50%; background: var(--warm-gold);
+}
+
+/* Marks a size that cannot be bought online, only quoted. */
+.choice-tag {
+  margin-left: 0.4rem; padding: 0.1rem 0.45rem; border-radius: 999px;
+  background: rgba(0, 64, 32, 0.1); color: var(--green);
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase;
+}
+.choice.on .choice-tag { background: rgba(255, 248, 232, 0.2); color: var(--cream); }
+
+/* ── The bulk enquiry ────────────────────────────────────── */
+.enquiry-lines { list-style: none; margin: 0 0 1.25rem; padding: 0; }
+.enquiry-lines li {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;
+  padding: 1rem 0; border-bottom: 1px solid var(--line);
+}
+.enquiry-line-actions { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; justify-content: flex-end; }
+.enquiry-total {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-top: 0.5rem; font-size: 1.15rem;
+}
+.enquiry-total strong { font-family: var(--serif); font-weight: 400; font-size: 1.6rem; }
+.link-plain {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  font-size: 0.88rem; color: var(--ink-soft); text-decoration: underline;
+}
+.link-plain:hover { color: #7d1a13; }
+@media (max-width: 560px) {
+  .enquiry-lines li { flex-direction: column; align-items: stretch; }
+  .enquiry-line-actions { justify-content: space-between; }
+}
+
+/* The order minimum, beside a cart line's stepper — so a disabled "−"
+   reads as a rule rather than a broken button. */
+.min-note {
+  display: block; margin-top: 0.3rem;
+  font-size: 0.78rem; font-weight: 600; color: var(--ink-soft);
+}
+.qty button[disabled] { opacity: 0.35; cursor: not-allowed; }

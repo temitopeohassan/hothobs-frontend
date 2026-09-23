@@ -6,6 +6,7 @@ import CartDrawer from './components/CartDrawer.jsx'
 import OrderBar from './components/OrderBar.jsx'
 import Home from './pages/Home.jsx'
 import Menu from './pages/Menu.jsx'
+import MenuSection from './pages/MenuSection.jsx'
 import Product from './pages/Product.jsx'
 import Catering from './pages/Catering.jsx'
 import CateringMenu from './pages/CateringMenu.jsx'
@@ -20,11 +21,20 @@ import Register from './pages/Register.jsx'
 import Account from './pages/Account.jsx'
 import RequireAuth from './components/RequireAuth.jsx'
 
+/**
+ * Every navigation starts at the top — unless it carries a hash, which the
+ * menu pages use to jump straight to a category. Scrolling to 0 there would
+ * undo the jump the link was for.
+ */
 function ScrollToTop() {
-  const { pathname } = useLocation()
+  const { pathname, hash } = useLocation()
   useEffect(() => {
+    if (hash) {
+      document.getElementById(hash.slice(1))?.scrollIntoView()
+      return
+    }
     window.scrollTo(0, 0)
-  }, [pathname])
+  }, [pathname, hash])
   return null
 }
 
@@ -38,7 +48,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/menu" element={<Menu />} />
-          <Route path="/menu/:slug" element={<Product />} />
+          <Route path="/menu/:menuId" element={<MenuSection />} />
+          <Route path="/menu/:menuId/:slug" element={<Product />} />
           <Route path="/catering" element={<Catering />} />
           <Route path="/catering/menu" element={<CateringMenu />} />
           <Route path="/about" element={<About />} />

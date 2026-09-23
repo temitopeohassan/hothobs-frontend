@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import ProductCard from '../components/ProductCard.jsx'
 import SteamRule from '../components/SteamRule.jsx'
 import Hero from '../components/Hero.jsx'
-import { categories, featured, signature } from '../data/menu.js'
+import { menus, categories, featured, signature } from '../data/menu.js'
 import { brand, contact, orderingInfo, testimonials, gallery } from '../data/site.js'
 
 export default function Home() {
@@ -28,17 +28,31 @@ export default function Home() {
       <section className="band band-white">
         <div className="wrap">
           <div className="head">
-            <h2>Explore our menu</h2>
-            <p>Ten kitchens' worth of cooking, sorted so you can find dinner quickly.</p>
+            <h2>Explore our menus</h2>
+            <p>
+              Three menus, priced three ways — per head for breakfast, by the litre and the tray
+              for the bowls, by the pack for the boxes.
+            </p>
           </div>
-          <div className="cats">
-            {categories.map((c) => (
-              <Link key={c.id} to={`/menu?category=${c.id}`} className="cat">
-                <strong>{c.name}</strong>
-                <span>{c.note}</span>
-              </Link>
-            ))}
-          </div>
+          {/* Grouped by menu rather than one flat list of categories: a
+              category means little until you know which menu it is priced on. */}
+          {menus.map((m) => (
+            <div key={m.id} className="home-menu-group">
+              <h3>
+                <Link to={m.path}>{m.name}</Link> <span className="note">· {m.minimum}</span>
+              </h3>
+              <div className="cats">
+                {categories
+                  .filter((c) => c.menu === m.id)
+                  .map((c) => (
+                    <Link key={c.id} to={`${m.path}#${c.id}`} className="cat">
+                      <strong>{c.name}</strong>
+                      <span>{c.note}</span>
+                    </Link>
+                  ))}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 

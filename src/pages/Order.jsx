@@ -17,7 +17,7 @@ const defaultZones = [
 ]
 
 export default function Order() {
-  const { lines, subtotal, setQty, remove } = useCart()
+  const { lines, subtotal, setQty, remove, minFor } = useCart()
   const { user, ready, login } = useAuth()
 
   const [zones, setZones] = useState(defaultZones)
@@ -384,10 +384,19 @@ export default function Order() {
                     <small>{[l.portionLabel, ...l.optionLabels].filter(Boolean).join(' · ')}</small>
                     {l.notes && <small style={{ display: 'block' }}>Note: {l.notes}</small>}
                     <div className="qty" style={{ marginTop: '0.5rem', transform: 'scale(0.8)', transformOrigin: 'left' }}>
-                      <button onClick={() => setQty(l.key, l.qty - 1)} aria-label={`Reduce ${l.name}`}>−</button>
+                      <button
+                        onClick={() => setQty(l.key, l.qty - 1)}
+                        aria-label={`Reduce ${l.name}`}
+                        disabled={l.qty <= minFor(l.slug)}
+                      >
+                        −
+                      </button>
                       <span>{l.qty}</span>
                       <button onClick={() => setQty(l.key, l.qty + 1)} aria-label={`Add another ${l.name}`}>+</button>
                     </div>
+                    {minFor(l.slug) > 1 && (
+                      <small className="min-note">Minimum {minFor(l.slug)}</small>
+                    )}
                   </div>
                   <div className="line-price">
                     {naira(l.unitPrice * l.qty)}

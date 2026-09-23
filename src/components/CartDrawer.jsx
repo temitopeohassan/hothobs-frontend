@@ -4,7 +4,7 @@ import { useCart } from '../context/CartContext.jsx'
 import { naira } from '../data/menu.js'
 
 export default function CartDrawer() {
-  const { open, closeCart, lines, subtotal, setQty, remove } = useCart()
+  const { open, closeCart, lines, subtotal, setQty, remove, minFor } = useCart()
 
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && closeCart()
@@ -30,7 +30,9 @@ export default function CartDrawer() {
               <Link className="btn btn-green btn-sm" to="/menu" onClick={closeCart}>Browse the menu</Link>
             </div>
           ) : (
-            lines.map((l) => (
+            lines.map((l) => {
+              const min = minFor(l.slug)
+              return (
               <div className="line" key={l.key}>
                 <div className={`line-thumb tone-${l.tone}`} aria-hidden="true" />
                 <div>
@@ -39,10 +41,17 @@ export default function CartDrawer() {
                     {[l.portionLabel, ...l.optionLabels].filter(Boolean).join(' · ')}
                   </small>
                   <div className="qty" style={{ marginTop: '0.5rem', transform: 'scale(0.85)', transformOrigin: 'left' }}>
-                    <button onClick={() => setQty(l.key, l.qty - 1)} aria-label={`Reduce ${l.name}`}>−</button>
+                    <button
+                      onClick={() => setQty(l.key, l.qty - 1)}
+                      aria-label={`Reduce ${l.name}`}
+                      disabled={l.qty <= min}
+                    >
+                      −
+                    </button>
                     <span>{l.qty}</span>
                     <button onClick={() => setQty(l.key, l.qty + 1)} aria-label={`Add another ${l.name}`}>+</button>
                   </div>
+                  {min > 1 && <small className="min-note">Minimum {min}</small>}
                 </div>
                 <div className="line-price">
                   {naira(l.unitPrice * l.qty)}
@@ -51,7 +60,8 @@ export default function CartDrawer() {
                   </div>
                 </div>
               </div>
-            ))
+              )
+            })
           )}
         </div>
 

@@ -1,20 +1,40 @@
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import ProductCard from '../components/ProductCard.jsx'
-import { getProduct, products, categoryName, naira } from '../data/menu.js'
+import {
+  getProduct,
+  products,
+  categoryName,
+  menuName,
+  minQtyOf,
+  unitNounOf,
+  naira,
+} from '../data/menu.js'
 import { useCart } from '../context/CartContext.jsx'
 import NotFound from './NotFound.jsx'
 
+/**
+ * One dish: pick the size, settle the options, then add it to the cart.
+ *
+ * This is where an order is finalised rather than guessed at. Where Hothobs
+ * prints an order minimum — twenty people for a breakfast spread, twenty
+ * packs for a Black Pack — the quantity starts there and cannot go below it.
+ * The server holds the same floor, so lowering it in the browser does not
+ * get an under-minimum order through checkout.
+ */
 export default function Product() {
   const { slug } = useParams()
   const product = getProduct(slug)
   const { add } = useCart()
 
+  const min = minQtyOf(product ?? {})
+  const noun = unitNounOf(product ?? {})
+
   const [portionId, setPortionId] = useState(product?.portions[0]?.id)
   const [choices, setChoices] = useState(() =>
     Object.fromEntries((product?.options ?? []).map((o) => [o.id, o.choices[0].id]))
   )
-  const [qty, setQty] = useState(1)
+  const [qty, setQty] = useState(min)
   const [notes, setNotes] = useState('')
 
   const related = useMemo(
@@ -28,7 +48,11 @@ export default function Product() {
   const chosen = product.options.map((o) => o.choices.find((c) => c.id === choices[o.id]))
   const unitPrice = portion.price + chosen.reduce((n, c) => n + (c?.price ?? 0), 0)
 
-  const addToCart = () => {
+  // Clamp here too: the field can be left below the floor if it is typed
+  // into and the button clicked without blurring it first.
+  const orderQty = Math.max(min, qty || min)
+
+  const addToCart = () =>
     add({
       key: `${product.slug}|${portion.id}|${Object.values(choices).join('-')}|${notes}`,
       slug: product.slug,
@@ -41,17 +65,21 @@ export default function Product() {
       optionLabels: chosen.filter(Boolean).map((c) => c.label),
       notes,
       unitPrice,
-      qty,
+      qty: orderQty,
       tone: product.tone,
     })
-  }
 
   return (
     <>
       <section className="band band-cream" style={{ paddingBottom: '3rem' }}>
         <div className="wrap">
           <p className="crumb">
-            <Link to="/menu">Menu</Link> / <Link to={`/menu?category=${product.category}`}>{categoryName(product.category)}</Link> / {product.name}
+            <Link to="/menu">Menus</Link> /{' '}
+            <Link to={`/menu/${product.menu}`}>{menuName(product.menu)}</Link> /{' '}
+            <Link to={`/menu/${product.menu}#${product.category}`}>
+              {categoryName(product.category)}
+            </Link>{' '}
+            / {product.name}
           </p>
 
           <div className="pdp">
@@ -63,9 +91,18 @@ export default function Product() {
               <h1 style={{ fontSize: 'clamp(2rem, 4.5vw, 3rem)' }}>{product.name}</h1>
               <p>{product.description}</p>
 
+              {product.includes.length > 0 && (
+                <div className="field">
+                  <span className="field-label">What is in it</span>
+                  <ul className="includes">
+                    {product.includes.map((i) => <li key={i}>{i}</li>)}
+                  </ul>
+                </div>
+              )}
+
               {product.portions.length > 1 && (
                 <div className="field">
-                  <span className="field-label" id="portion-label">Portion</span>
+                  <span className="field-label" id="portion-label">Size</span>
                   <div className="choices" role="radiogroup" aria-labelledby="portion-label">
                     {product.portions.map((p) => (
                       <label key={p.id} className={`choice ${portionId === p.id ? 'on' : ''}`}>
@@ -103,6 +140,30 @@ export default function Product() {
                 </div>
               ))}
 
+              {min > 1 && (
+                <div className="field">
+                  <label className="field-label" htmlFor="qty-input">
+                    How many {noun}
+                  </label>
+                  <input
+                    id="qty-input"
+                    inputMode="numeric"
+                    value={qty}
+                    onChange={(e) => {
+                      const next = Number(e.target.value.replace(/\D/g, ''))
+                      setQty(Number.isFinite(next) ? next : min)
+                    }}
+                    // Typing is left free so the field can be cleared and
+                    // retyped; the floor is applied when focus leaves, and
+                    // again on the server.
+                    onBlur={() => setQty((q) => Math.max(min, q || min))}
+                  />
+                  <p className="note" style={{ marginTop: '0.4rem' }}>
+                    Minimum order is {min} {noun}.
+                  </p>
+                </div>
+              )}
+
               <div className="field">
                 <label htmlFor="notes" className="field-label">Order notes</label>
                 <textarea
@@ -115,14 +176,23 @@ export default function Product() {
 
               <div className="pdp-buy">
                 <div className="qty">
-                  <button onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Reduce quantity">−</button>
+                  <button
+                    onClick={() => setQty((q) => Math.max(min, q - 1))}
+                    aria-label="Reduce quantity"
+                    disabled={qty <= min}
+                  >
+                    −
+                  </button>
                   <span aria-live="polite">{qty}</span>
                   <button onClick={() => setQty((q) => q + 1)} aria-label="Increase quantity">+</button>
                 </div>
-                <span className="total-line">{naira(unitPrice * qty)}</span>
+                <span className="total-line">{naira(unitPrice * orderQty)}</span>
                 <button className="btn btn-gold" onClick={addToCart}>Add to cart</button>
               </div>
-              <p className="note">Delivery is calculated at checkout once we have your area.</p>
+              <p className="note">
+                {min > 1 && `${naira(unitPrice)} per ${noun.replace(/s$/, '')}. `}
+                Delivery is calculated at checkout once we have your area.
+              </p>
             </div>
           </div>
         </div>

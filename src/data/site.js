@@ -12,8 +12,11 @@ export const brand = {
   name: 'Hothobs Cuisines',
   concept: 'From the Pot to the Table.',
   message: 'Good food. Good moments.',
+  // Confirmed copy, taken from the About Us document supplied by Hothobs
+  // (pdfs/AboutHothobs.pdf). Hothobs is a global-cuisine brand, not a
+  // Nigerian-only one — keep any rewrite on that side of the line.
   positioning:
-    'A contemporary Nigerian food brand offering thoughtfully prepared meals and culinary experiences for everyday dining, sharing and special occasions.',
+    'A culinary brand passionate about creating exceptional food inspired by the richness and diversity of global cuisine — Nigerian, French, Italian, Chinese and more — for everyday dining, sharing and special occasions.',
   instagram: 'https://instagram.com/hothobscuisines',
   facebook: 'https://facebook.com/hothobscuisines',
 }
@@ -26,30 +29,38 @@ export const contact = {
   mapQuery: '5 Alake Onile-Ere Crescent, Lagos, Nigeria',
 }
 
-// TODO verify every line with Hothobs before publishing.
+// Confirmed: the ordering terms printed on the bowls & trays menu
+// (pdfs/HOTHOBS FOOD BOWLS AND TRAY MENU FEB2026.pdf, final page).
 export const openingHours = [
-  { days: 'Monday – Friday', hours: '9:00am – 8:00pm' },
-  { days: 'Saturday', hours: '10:00am – 8:00pm' },
-  { days: 'Sunday', hours: 'Closed' },
+  { days: 'Monday – Friday', hours: '8:00am – 5:00pm' },
+  { days: 'Saturday – Sunday', hours: 'Weekend orders by arrangement' },
 ]
 
-// TODO verify every line with Hothobs before publishing.
+// Confirmed from the bowls & trays menu, as above. Payment is the one line
+// that does NOT come from that PDF: the menu asks for a bank transfer with
+// proof on WhatsApp, but this site takes payment online through Paystack,
+// so the account details are deliberately not published here.
 export const orderingInfo = [
   {
-    title: 'Ordering cut-off',
-    body: 'Same-day orders close at 4:00pm. Anything after that is prepared the next day.',
+    title: 'Ordering days',
+    body: 'We take orders Monday to Friday, 8:00am to 5:00pm.',
   },
   {
     title: 'Delivery days',
-    body: 'We deliver Monday to Saturday. Sunday orders are scheduled for Monday.',
+    body: 'Deliveries go out on Tuesdays and Fridays only, scheduled when you order.',
   },
   {
-    title: 'Delivery areas',
-    body: 'Mainland and Island Lagos. Fees are confirmed at checkout by location.',
+    title: 'Weekend orders',
+    body: 'A weekend order needs a minimum of 15 boxes.',
   },
   {
-    title: 'Pickup',
-    body: 'Pickup is available from our kitchen during opening hours. Choose pickup at checkout.',
+    title: 'Minimum orders',
+    body:
+      'Breakfast is priced per head for a minimum of 20 people. Rice takeaway packs have a minimum order of 20 packs. Bowls and trays are bulk orders only.',
+  },
+  {
+    title: 'Getting it to you',
+    body: 'For speed, we advise booking a ride through Uber or Gokada to collect your order.',
   },
   {
     title: 'Payment',
@@ -154,13 +165,10 @@ export const heroFeatures = [
     photo: 'photo-1504674900247-0877df9cc836',
     // TODO write an alt description of the actual photograph used.
     alt: 'A full Hothobs plate, protein and sides, served hot',
-    lede: 'The full plate — rice, swallow and protein, with the sides that finish it.',
-    ledeTail: 'Order before 4:00pm and it goes out the same day.',
-    ctaLabel: 'ORDER NOW',
-    // The whole menu, not ?category=main-meals — that category exists in
-    // menu.js but has no dishes in it yet, so it renders "Nothing in this
-    // category yet". Point this at main-meals once it is stocked.
-    ctaTo: '/menu',
+    lede: 'Rice packs and food boxes — jollof, plantain and the proteins that finish it.',
+    ledeTail: 'Orders Monday to Friday, 8am to 5pm. Minimum order 20 packs.',
+    ctaLabel: 'SEE THE PACKS',
+    ctaTo: '/menu/packs',
   },
   {
     id: 'soups',
@@ -169,9 +177,9 @@ export const heroFeatures = [
     // TODO write an alt description of the actual photograph used.
     alt: 'A wide pot of Hothobs soup cooking down on the fire',
     lede: 'Cooked long and seasoned properly, straight from the pot it was made in.',
-    ledeTail: 'Order before 4:00pm and it goes out the same day.',
-    ctaLabel: 'ORDER NOW',
-    ctaTo: '/menu?category=soups',
+    ledeTail: 'Sold by the litre and the tray, quoted by the kitchen.',
+    ctaLabel: 'SEE THE BOWLS',
+    ctaTo: '/menu/bowls#stew-soup',
   },
 ].map((f) => ({
   ...f,
