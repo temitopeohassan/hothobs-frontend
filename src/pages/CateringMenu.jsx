@@ -118,7 +118,7 @@ export default function CateringMenu() {
             className="note"
             style={{ color: 'rgba(255, 248, 232, 0.75)', maxWidth: '52ch', fontStyle: 'italic' }}
           >
-            * Prices here are per head and indicative, before service charge, VAT and transport.
+            * Prices here are per head and indicative, before service charge and transport.
           </p>
         </div>
         <SteamRule color="var(--cream)" />
@@ -296,8 +296,8 @@ export default function CateringMenu() {
                           </div>
                         )}
                         <p className="note" style={{ marginTop: '0.75rem' }}>
-                          An estimate for the food only, before service charge (10% – 20%), VAT
-                          (7.5%) and transport. Your quote is confirmed by the kitchen.
+                          An estimate for the food only, before service charge (15% – 20%) and
+                          transport. Your quote is confirmed by the kitchen.
                         </p>
                       </>
                     )}

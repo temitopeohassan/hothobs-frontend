@@ -9,8 +9,8 @@
  *
  *  Nothing here is orderable online. Catering is quoted and
  *  confirmed by the kitchen — see CateringMenu.jsx — so these
- *  prices are per head and indicative, before service charge,
- *  VAT and transport.
+ *  prices are per head and indicative, before service charge
+ *  and transport.
  *
  *  Course shape:
  *    id         unique, used in the url hash and the enquiry text
@@ -90,7 +90,6 @@ export const courses = [
               'Seafood Kebabs (Shrimp, Fish)',
               'Crispy Chicken Lollipop',
               'Spicy Korean Meatballs',
-              'Smoked Chicken Salad',
               'Beef Kebabs',
             ],
           },
@@ -330,8 +329,9 @@ export const courses = [
               'Nigeria — Jollof Rice & Fried Rice',
               'Nigeria — Asaro and Sauce',
               'Nigeria — Village Rice / Ofada Rice / Coconut Rice (any 1)',
-              'Nigeria — Poundo or Semo served with any 1 soup option (Efo Riro, Okro Soup, Efo Egusi, Edikaikan) & any 2 proteins',
+              'Nigeria — Poundo or Semo served with any 1 soup option (Efo Riro, Okro Soup, Efo Egusi, Edikaikan) & (Stewed Chicken, Stewed Fish, Stewed Beef)',
               'Nigeria — Salad / Plantain / Moinmoin',
+              'Nigeria — Served with any 2 of Stewed Chicken, Stewed Beef, Stewed Fish',
               'Oriental — Chinese Rice',
               'Oriental — Singapore Noodles',
               'Oriental — Shredded Beef in Black Pepper Sauce',
@@ -474,9 +474,6 @@ export const courses = [
 export const servicesIncluded = [
   'Waiters',
   'Plates',
-  'Water glasses',
-  'Wine glasses',
-  'Champagne glasses',
   'Chafing dishes',
   'Menu card',
 ]
@@ -489,11 +486,11 @@ export const additionalFees = [
   },
   {
     title: 'Transport',
-    body: 'Lagos Island ₦60,000 – ₦100,000. Lagos Mainland ₦40,000 – ₦60,000. Lagos outskirts ₦100,000 – ₦150,000.',
+    body: 'Mainland 1 ₦50,000 – ₦70,000. Mainland 2 ₦60,000 – ₦80,000. Island 1 ₦70,000 – ₦90,000. Island 2 ₦80,000 – ₦100,000. Lagos outskirts ₦200,000 – ₦500,000.',
   },
   {
     title: 'Service charge',
-    body: 'Menu prices vary. Service charge is 10% – 20% of the total cost, and VAT is 7.5%.',
+    body: 'Menu prices vary. Service charge is 15% – 20% of the total cost.',
   },
   {
     title: 'Confirming your booking',
