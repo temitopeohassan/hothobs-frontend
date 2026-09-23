@@ -42,6 +42,10 @@ export const openingHours = [
 // so the account details are deliberately not published here.
 export const orderingInfo = [
   {
+    title: 'Order a day ahead',
+    body: 'All orders must be placed at least a day before — we don’t take same-day orders.',
+  },
+  {
     title: 'Ordering days',
     body: 'We take orders Monday to Friday, 8:00am to 5:00pm.',
   },

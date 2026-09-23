@@ -13,7 +13,7 @@ export default function Contact() {
       <div className="wrap">
         <div className="head">
           <h1 style={{ fontSize: 'clamp(2.2rem, 5vw, 3.4rem)' }}>Talk to the kitchen</h1>
-          <p>Call, message or write. For orders going out today, phone or WhatsApp is fastest.</p>
+          <p>Call, message or write. For anything about an order already placed, phone or WhatsApp is fastest.</p>
         </div>
 
         <div className="checkout">

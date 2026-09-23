@@ -16,6 +16,27 @@ const defaultZones = [
   { id: 'outside', label: 'Delivery — outside Lagos', fee: null },
 ]
 
+// Every order has to be placed at least a day ahead, so the earliest date on
+// offer is tomorrow. Built from local date parts — toISOString() is UTC and
+// would hand back the wrong day around midnight.
+function tomorrowISO() {
+  const d = new Date()
+  d.setDate(d.getDate() + 1)
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
+// "2026-09-24" → "Thu, 24 Sept 2026", read as a local date.
+function formatDate(iso) {
+  const [y, m, d] = iso.split('-').map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
 export default function Order() {
   const { lines, subtotal, setQty, remove, minFor } = useCart()
   const { user, ready, login } = useAuth()
@@ -30,7 +51,8 @@ export default function Order() {
     phone: '',
     email: '',
     address: '',
-    when: '',
+    date: '',
+    time: '',
     notes: '',
   })
   const [errors, setErrors] = useState({})
@@ -98,9 +120,14 @@ export default function Order() {
   // A guest has no account to reach them through, so the details the kitchen
   // needs have to come from the form. The server checks all of this again.
   const guest = !user
+  const minDate = tomorrowISO()
+  // The picker's `min` stops most same-day picks, but a typed date or a page
+  // left open past midnight can still slip through, so check it here too.
+  const dateOk = form.date !== '' && form.date >= minDate
   const canPlace =
     form.name &&
     (isPickup || form.address) &&
+    dateOk &&
     (!guest || (form.email && form.phone)) &&
     lines.length > 0
 
@@ -128,7 +155,7 @@ export default function Order() {
         zone,
         payment: 'paystack',
         address: isPickup ? '' : form.address,
-        wantedFor: form.when,
+        wantedFor: [formatDate(form.date), form.time.trim()].filter(Boolean).join(', '),
         notes: form.notes,
         items: lines.map((l) => ({
           slug: l.slug,
@@ -341,10 +368,29 @@ export default function Order() {
                 </div>
               )}
 
-              <div className="field">
-                <label htmlFor="o-when" className="field-label">When do you need it?</label>
-                <input id="o-when" type="text" value={form.when} onChange={set('when')}
-                  placeholder="e.g. today by 5pm, or Saturday morning" />
+              <div className="two">
+                <div className="field" style={{ margin: 0 }}>
+                  <label htmlFor="o-date" className="field-label">
+                    {isPickup ? 'Pickup date' : 'Delivery date'}{' '}
+                    <span className="field-hint">orders must be placed a day ahead</span>
+                  </label>
+                  <input id="o-date" type="date" min={minDate} value={form.date}
+                    onChange={set('date')}
+                    aria-invalid={Boolean(errors.wantedFor) || (form.date !== '' && !dateOk)} />
+                  {form.date !== '' && !dateOk && (
+                    <p className="field-error">
+                      We can&rsquo;t do same-day orders. Please pick tomorrow or later.
+                    </p>
+                  )}
+                  {errors.wantedFor && <p className="field-error">{errors.wantedFor}</p>}
+                </div>
+                <div className="field" style={{ margin: 0 }}>
+                  <label htmlFor="o-time" className="field-label">
+                    Time <span className="field-hint">optional</span>
+                  </label>
+                  <input id="o-time" type="text" value={form.time} onChange={set('time')}
+                    placeholder="e.g. by 1pm, or morning" />
+                </div>
               </div>
 
               <div className="field" style={{ marginBottom: 0 }}>
@@ -431,6 +477,7 @@ export default function Order() {
                     guest && !form.email && 'email',
                     guest && !form.phone && 'phone number',
                     !isPickup && !form.address && 'delivery address',
+                    !dateOk && (isPickup ? 'pickup date' : 'delivery date'),
                   ]
                     .filter(Boolean)
                     .join(', ')
