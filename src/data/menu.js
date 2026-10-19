@@ -3,9 +3,8 @@
  *  THE HOTHOBS MENU — transcribed from the supplied PDFs
  * ─────────────────────────────────────────────────────────────
  *  Nothing here is placeholder copy. Every dish, size and price is
- *  taken from the three menus Hothobs supplied, in pdfs/:
+ *  taken from the menus Hothobs supplied, in pdfs/:
  *
- *    breakfast  "HOTHOBS BREAKFAST 2024-1.pdf"
  *    bowls      "HOTHOBS FOOD BOWLS AND TRAY MENU FEB2026.pdf"
  *    packs      "2026 HOTHOBS FOOD PACK AND BOXES MENU.pdf"
  *
@@ -21,11 +20,11 @@
  *  and the quantity control starts there and will not go below it —
  *  the server enforces the same floor, so it cannot be edited away
  *  in the browser. `unitNoun` is what that quantity counts: a
- *  breakfast is counted in people, a Black Pack in packs.
+ *  a bowl is counted in portions, a Black Pack in packs.
  *
  *  ── Product shape ───────────────────────────────────────────
  *    slug        unique url segment, unique across ALL menus
- *    menu        breakfast | bowls | packs
+ *    menu        bowls | packs
  *    category    must match a category id below
  *    name        display name
  *    blurb       one-line card description
@@ -41,7 +40,12 @@
  */
 
 /**
- * The three menus, in the order they appear in the nav dropdown.
+ * The everyday menus — the ones ordered and paid for online. Breakfast is
+ * not here: it is quoted like the rest of catering, on the catering menu
+ * (src/data/catering-menu.js).
+ *
+ * `parent` is the section a menu lives under, for the nav and breadcrumbs;
+ * it defaults to Menus.
  *
  * `minimum` is the order minimum printed on the menu itself, shown on the
  * menu page because it is the single thing most likely to waste a
@@ -49,14 +53,6 @@
  * prints, the products carry `minQty` and it is enforced at checkout.
  */
 export const menus = [
-  {
-    id: 'breakfast',
-    name: 'Breakfast Menu',
-    path: '/menu/breakfast',
-    blurb: 'Nigerian, continental and mixed breakfast, priced per head.',
-    minimum: 'Minimum of 20 people',
-    source: 'HOTHOBS BREAKFAST 2024-1.pdf',
-  },
   {
     id: 'bowls',
     name: 'Bowls Menu',
@@ -76,8 +72,6 @@ export const menus = [
 ]
 
 export const categories = [
-  // Breakfast
-  { id: 'breakfast-packages', menu: 'breakfast', name: 'Breakfast Packages', note: 'Per head, minimum of 20 people' },
 
   // Bowls & trays
   { id: 'rice', menu: 'bowls', name: 'Rice', note: 'By the litre or the tray' },
@@ -144,112 +138,6 @@ const saladSizes = (bowl, medium, large) => [
 ]
 
 export const products = [
-  /* ── Breakfast ─────────────────────────────────────────────
-     Priced per head with a minimum of 20 people, so all three are
-     quoted rather than shopped. */
-  {
-    slug: 'nigerian-breakfast',
-    menu: 'breakfast',
-    category: 'breakfast-packages',
-    name: 'Nigerian Breakfast',
-    blurb: 'Yam, plantain, sweet potatoes and the sauces that go with them.',
-    description:
-      'Our Nigerian breakfast spread, served for a minimum of twenty people and priced per head.',
-    includes: [
-      'Boiled yam',
-      'Boiled plantain',
-      'Fried sweet potatoes',
-      'White & wheat bread',
-      'Egg sauce',
-      'Fried eggs (omelette)',
-      'Fried & stewed chicken wings',
-      'Corned beef stew',
-      'Fish sauce / liver sauce',
-      'Salad',
-      'Assorted tea',
-    ],
-    portions: [{ id: 'per-head', label: 'Per head', price: 10000 }],
-    minQty: 20,
-    unitNoun: 'people',
-    options: [],
-    featured: false,
-    signature: false,
-    tone: 'gold',
-  },
-  {
-    slug: 'continental-breakfast',
-    menu: 'breakfast',
-    category: 'breakfast-packages',
-    name: 'Continental Breakfast',
-    blurb: 'Sandwiches, pastries, eggs, sausages and grills.',
-    description:
-      'The continental spread, served for a minimum of twenty people and priced per head.',
-    includes: [
-      'Irish potatoes',
-      'Chicken / egg / fish sandwiches',
-      'Croissants / baguette / bread rolls',
-      'Pancakes / waffles',
-      'Poached eggs',
-      'Scrambled eggs / omelette',
-      'Sausages — beef / chicken / pork',
-      'Grilled wings',
-      'Ham / bacon',
-      'Salad',
-      'Mince meat stew',
-      'Baked beans',
-      'Grilled mushroom',
-      'Grilled tomato',
-    ],
-    portions: [{ id: 'per-head', label: 'Per head', price: 15000 }],
-    minQty: 20,
-    unitNoun: 'people',
-    options: [],
-    featured: false,
-    signature: false,
-    tone: 'cream',
-  },
-  {
-    slug: 'mix-breakfast',
-    menu: 'breakfast',
-    category: 'breakfast-packages',
-    name: 'Mix Breakfast',
-    blurb: 'The full table — Nigerian and continental together.',
-    description:
-      'Both spreads on one table, served for a minimum of twenty people and priced per head.',
-    includes: [
-      'Beans',
-      'Yam',
-      'Plantain',
-      'Irish potato',
-      'Wheat bread',
-      'Bread rolls',
-      'Croissant',
-      'Sausage rolls',
-      'Scotch eggs',
-      'Meat pie / chicken pie',
-      'Chicken wings',
-      'Mince meat sauce',
-      'Fish sauce',
-      'Egg sauce',
-      'Plain eggs / poached eggs',
-      'Salad',
-      'Baked beans',
-      'Sausages',
-      'Bacon / ham',
-      'Grilled tomatoes',
-      'Sautéed mushroom',
-      'Fruits',
-      'Assorted tea',
-    ],
-    portions: [{ id: 'per-head', label: 'Per head', price: 20000 }],
-    minQty: 20,
-    unitNoun: 'people',
-    options: [],
-    featured: true,
-    signature: false,
-    tone: 'green',
-  },
-
   /* ── Bowls: rice ───────────────────────────────────────────
      On the bowls menu a tray and 5 litres are the same money. That is
      how the PDF prices them; it is not a transcription slip. */
@@ -1273,6 +1161,9 @@ export const signature = () => products.filter((p) => p.signature)
 export const categoryName = (id) => categories.find((c) => c.id === id)?.name ?? id
 export const getMenu = (id) => menus.find((m) => m.id === id)
 export const menuName = (id) => getMenu(id)?.name ?? id
+export const menuParent = (id) => getMenu(id)?.parent ?? { to: '/menu', label: 'Menus' }
+/** The menus on the /menu overview — everything not filed under Catering. */
+export const overviewMenus = menus.filter((m) => !m.parent)
 
 /** The order minimum Hothobs prints for this dish, if any. */
 export const minQtyOf = (product) => product.minQty ?? 1

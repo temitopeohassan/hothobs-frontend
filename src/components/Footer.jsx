@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { brand, contact, openingHours } from '../data/site.js'
-import { menus } from '../data/menu.js'
+import { overviewMenus } from '../data/menu.js'
 
 export default function Footer() {
   return (
@@ -26,15 +26,22 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* The three menus are priced differently — per head, by the litre,
-              by the pack — so the footer sends people to the right one rather
-              than listing dishes that mean nothing out of context. */}
+          {/* The menus are priced differently — by the litre, by the pack —
+              so the footer sends people to the right one rather than listing
+              dishes that mean nothing out of context. */}
           <div>
             <h4><Link to="/menu">Menus</Link></h4>
             <ul>
-              {menus.map((m) => (
+              {overviewMenus.map((m) => (
                 <li key={m.id}><Link to={m.path}>{m.name}</Link></li>
               ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4><Link to="/catering">Catering</Link></h4>
+            <ul>
+              <li><Link to="/catering">Catering & large orders</Link></li>
               <li><Link to="/catering/menu">Catering menu</Link></li>
             </ul>
           </div>
@@ -43,7 +50,6 @@ export default function Footer() {
             <h4>Hothobs</h4>
             <ul>
               <li><Link to="/about">About us</Link></li>
-              <li><Link to="/catering">Catering</Link></li>
               <li><Link to="/gallery">Gallery</Link></li>
               <li><Link to="/contact">Contact</Link></li>
               <li><Link to="/order">Order</Link></li>

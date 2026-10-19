@@ -71,7 +71,7 @@ export default function CartDrawer() {
               <span>Subtotal</span>
               <span className="price">{naira(subtotal)}</span>
             </div>
-            <p className="note">Delivery is added at checkout once we have your area.</p>
+            <p className="note">Delivery is not included — it is paid on delivery.</p>
             <Link className="btn btn-gold btn-block" to="/order" onClick={closeCart}>
               Check out
             </Link>

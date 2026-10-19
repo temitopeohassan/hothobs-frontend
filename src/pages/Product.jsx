@@ -6,6 +6,8 @@ import {
   products,
   categoryName,
   menuName,
+  menuParent,
+  getMenu,
   minQtyOf,
   unitNounOf,
   naira,
@@ -17,8 +19,7 @@ import NotFound from './NotFound.jsx'
  * One dish: pick the size, settle the options, then add it to the cart.
  *
  * This is where an order is finalised rather than guessed at. Where Hothobs
- * prints an order minimum — twenty people for a breakfast spread, twenty
- * packs for a Black Pack — the quantity starts there and cannot go below it.
+ * prints an order minimum — twenty packs for a Black Pack — the quantity starts there and cannot go below it.
  * The server holds the same floor, so lowering it in the browser does not
  * get an under-minimum order through checkout.
  */
@@ -74,9 +75,9 @@ export default function Product() {
       <section className="band band-cream" style={{ paddingBottom: '3rem' }}>
         <div className="wrap">
           <p className="crumb">
-            <Link to="/menu">Menus</Link> /{' '}
-            <Link to={`/menu/${product.menu}`}>{menuName(product.menu)}</Link> /{' '}
-            <Link to={`/menu/${product.menu}#${product.category}`}>
+            <Link to={menuParent(product.menu).to}>{menuParent(product.menu).label}</Link> /{' '}
+            <Link to={getMenu(product.menu).path}>{menuName(product.menu)}</Link> /{' '}
+            <Link to={`${getMenu(product.menu).path}#${product.category}`}>
               {categoryName(product.category)}
             </Link>{' '}
             / {product.name}
@@ -191,7 +192,7 @@ export default function Product() {
               </div>
               <p className="note">
                 {min > 1 && `${naira(unitPrice)} per ${noun.replace(/s$/, '')}. `}
-                Delivery is calculated at checkout once we have your area.
+                Delivery is not included in the price — it is paid on delivery.
               </p>
             </div>
           </div>

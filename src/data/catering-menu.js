@@ -17,11 +17,15 @@
  *    name       display name
  *    blurb      one line under the heading
  *    tiers      [{ id, label, min, price }] per-head price by headcount
- *    groups     [{ id, name, note, choices }] what the customer picks
+ *    groups     [{ id, name, note, choices }] what the customer picks —
+ *               any number of choices, each with its own quantity
  *    choices    [{ id, name, price?, items?: [] }]
  *
- *  A choice carrying its own `price` (the Chinese courses) is a
- *  flat per-head rate and ignores the course tiers.
+ *  A choice carrying its own `price` (the Chinese courses, breakfast)
+ *  is a flat per-head rate and ignores the course tiers. A course
+ *  without tiers can set `min`, its smallest headcount.
+ *
+ *  Breakfast is transcribed from "HOTHOBS BREAKFAST 2024-1.pdf".
  */
 
 /** Headcount bands used by the canapé and mini-bowl courses. */
@@ -45,13 +49,13 @@ export const courses = [
   {
     id: 'canapes',
     name: 'Canapés',
-    blurb: 'Passed around while everyone arrives. Pick one of the four selections.',
+    blurb: 'Passed around while everyone arrives. Pick as many of the four selections as you like.',
     tiers: priced(smallTiers, [9000, 8000, 7000]),
     groups: [
       {
         id: 'selection',
-        name: 'Choose one selection',
-        pick: 'one',
+        name: 'Choose your selections',
+        pick: 'many',
         choices: [
           {
             id: 'option-1',
@@ -106,8 +110,8 @@ export const courses = [
     groups: [
       {
         id: 'bowl',
-        name: 'Choose one bowl',
-        pick: 'one',
+        name: 'Choose your bowls',
+        pick: 'many',
         choices: [
           { id: 'asun-jollof', name: 'Asun Jollof Rice with Plantain' },
           {
@@ -136,8 +140,8 @@ export const courses = [
     groups: [
       {
         id: 'bowl',
-        name: 'Choose one bowl',
-        pick: 'one',
+        name: 'Choose your bowls',
+        pick: 'many',
         choices: [
           { id: 'creamy-seafood', name: 'Creamy Seafood Pasta with Shrimps' },
           { id: 'creamy-chicken', name: 'Creamy Chicken Pasta with Chicken Breast' },
@@ -158,8 +162,8 @@ export const courses = [
     groups: [
       {
         id: 'bowl',
-        name: 'Choose one bowl',
-        pick: 'one',
+        name: 'Choose your bowls',
+        pick: 'many',
         choices: [
           {
             id: 'lamb-cutlets',
@@ -183,7 +187,7 @@ export const courses = [
       {
         id: 'salad',
         name: 'Salad',
-        pick: 'one',
+        pick: 'many',
         choices: [
           { id: 'asian-beef', name: 'Asian Beef Salad' },
           { id: 'grilled-chicken', name: 'Grilled Chicken Salad' },
@@ -194,7 +198,7 @@ export const courses = [
       {
         id: 'nigerian-soup',
         name: 'Nigerian soups',
-        pick: 'one',
+        pick: 'many',
         choices: [
           { id: 'chicken-pepper', name: 'Chicken Pepper Soup' },
           { id: 'beef-goat-pepper', name: 'Beef / Goat Meat Pepper Soup' },
@@ -205,7 +209,7 @@ export const courses = [
       {
         id: 'continental-soup',
         name: 'Continental soups',
-        pick: 'one',
+        pick: 'many',
         choices: [
           { id: 'cream-of-chicken', name: 'Cream of Chicken Soup' },
           { id: 'chicken-corn', name: 'Asian Chicken & Corn Soup' },
@@ -234,8 +238,8 @@ export const courses = [
     groups: [
       {
         id: 'option',
-        name: 'Choose one option',
-        pick: 'one',
+        name: 'Choose your options',
+        pick: 'many',
         choices: [
           {
             id: 'option-1',
@@ -280,8 +284,8 @@ export const courses = [
     groups: [
       {
         id: 'option',
-        name: 'Choose one option',
-        pick: 'one',
+        name: 'Choose your options',
+        pick: 'many',
         choices: [
           {
             id: 'option-1',
@@ -320,7 +324,7 @@ export const courses = [
       {
         id: 'option',
         name: 'Both sides are served',
-        pick: 'one',
+        pick: 'many',
         choices: [
           {
             id: 'nigeria-and-oriental',
@@ -354,8 +358,8 @@ export const courses = [
     groups: [
       {
         id: 'option',
-        name: 'Choose one option',
-        pick: 'one',
+        name: 'Choose your options',
+        pick: 'many',
         choices: [
           {
             id: 'option-1',
@@ -421,8 +425,8 @@ export const courses = [
     groups: [
       {
         id: 'option',
-        name: 'Choose one option',
-        pick: 'one',
+        name: 'Choose your options',
+        pick: 'many',
         choices: [
           {
             id: 'option-1',
@@ -468,6 +472,92 @@ export const courses = [
       },
     ],
   },
+
+  {
+    id: 'breakfast',
+    name: 'Breakfast',
+    blurb: 'Nigerian, continental and mixed breakfast spreads, at a flat rate per head.',
+    tiers: null,
+    min: 20,
+    groups: [
+      {
+        id: 'spread',
+        name: 'Choose your spreads',
+        pick: 'many',
+        choices: [
+          {
+            id: 'nigerian',
+            name: 'Nigerian Breakfast',
+            price: 10000,
+            items: [
+              'Boiled yam',
+              'Boiled plantain',
+              'Fried sweet potatoes',
+              'White & wheat bread',
+              'Egg sauce',
+              'Fried eggs (omelette)',
+              'Fried & stewed chicken wings',
+              'Corned beef stew',
+              'Fish sauce / liver sauce',
+              'Salad',
+              'Assorted tea',
+            ],
+          },
+          {
+            id: 'continental',
+            name: 'Continental Breakfast',
+            price: 15000,
+            items: [
+              'Irish potatoes',
+              'Chicken / egg / fish sandwiches',
+              'Croissants / baguette / bread rolls',
+              'Pancakes / waffles',
+              'Poached eggs',
+              'Scrambled eggs / omelette',
+              'Sausages — beef / chicken / pork',
+              'Grilled wings',
+              'Ham / bacon',
+              'Salad',
+              'Mince meat stew',
+              'Baked beans',
+              'Grilled mushroom',
+              'Grilled tomato',
+            ],
+          },
+          {
+            id: 'mix',
+            name: 'Mix Breakfast',
+            price: 20000,
+            items: [
+              'Beans',
+              'Yam',
+              'Plantain',
+              'Irish potato',
+              'Wheat bread',
+              'Bread rolls',
+              'Croissant',
+              'Sausage rolls',
+              'Scotch eggs',
+              'Meat pie / chicken pie',
+              'Chicken wings',
+              'Mince meat sauce',
+              'Fish sauce',
+              'Egg sauce',
+              'Plain eggs / poached eggs',
+              'Salad',
+              'Baked beans',
+              'Sausages',
+              'Bacon / ham',
+              'Grilled tomatoes',
+              'Sautéed mushroom',
+              'Fruits',
+              'Assorted tea',
+            ],
+          },
+        ],
+      },
+    ],
+  },
 ]
 
 /** What every catering booking includes, at no extra cost. */
@@ -505,7 +595,15 @@ export const tierFor = (tiers, guests) => {
   return reached.length ? reached[reached.length - 1] : null
 }
 
-/** The smallest headcount a course can be quoted for. */
-export const minGuests = (course) => course.tiers?.[0]?.min ?? 1
+/** No catering dish is quoted for fewer than this many guests. */
+export const MIN_GUESTS = 20
+
+/**
+ * The smallest quantity a dish on this course can be ordered in: the
+ * course's own floor where it is higher, otherwise MIN_GUESTS — so the
+ * main menus' "1 – 20 guests" band starts at 20 here.
+ */
+export const minGuests = (course) =>
+  Math.max(MIN_GUESTS, course.min ?? course.tiers?.[0]?.min ?? 1)
 
 export const getCourse = (id) => courses.find((c) => c.id === id)

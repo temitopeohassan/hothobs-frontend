@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import ProductCard from '../components/ProductCard.jsx'
 import SteamRule from '../components/SteamRule.jsx'
 import Hero from '../components/Hero.jsx'
-import { menus, categories, featured, signature } from '../data/menu.js'
+import { overviewMenus, categories, featured, signature } from '../data/menu.js'
 import { brand, contact, orderingInfo, testimonials, gallery } from '../data/site.js'
 
 export default function Home() {
@@ -30,13 +30,14 @@ export default function Home() {
           <div className="head">
             <h2>Explore our menus</h2>
             <p>
-              Three menus, priced three ways — per head for breakfast, by the litre and the tray
-              for the bowls, by the pack for the boxes.
+              Two menus, priced two ways — by the litre and the tray for the bowls, by the pack
+              for the boxes. Group breakfasts and event catering are on the{' '}
+              <Link className="link-gold" to="/catering/menu">catering menu</Link>.
             </p>
           </div>
           {/* Grouped by menu rather than one flat list of categories: a
               category means little until you know which menu it is priced on. */}
-          {menus.map((m) => (
+          {overviewMenus.map((m) => (
             <div key={m.id} className="home-menu-group">
               <h3>
                 <Link to={m.path}>{m.name}</Link> <span className="note">· {m.minimum}</span>

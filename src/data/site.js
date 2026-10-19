@@ -60,7 +60,7 @@ export const orderingInfo = [
   {
     title: 'Minimum orders',
     body:
-      'Breakfast is priced per head for a minimum of 20 people. Rice takeaway packs have a minimum order of 20 packs. Bowls and trays are bulk orders only.',
+      'Rice takeaway packs have a minimum order of 20 packs. Bowls and trays are bulk orders only.',
   },
   {
     title: 'Getting it to you',
@@ -149,8 +149,8 @@ export const heroEyebrow = 'FROM THE POT'
 
 // ORDER MATTERS. Hero.jsx features the first entry on load and drops the
 // other two into the side slots in the order they appear here: [1] is the
-// left cut-out, [2] is the right one. Catering leads; Meals sits left and
-// Soups right.
+// left cut-out, [2] is the right one. Catering leads; Bowls Menu sits left
+// and Packs & Boxes right — the same order as the main nav.
 export const heroFeatures = [
   {
     id: 'catering',
@@ -160,12 +160,23 @@ export const heroFeatures = [
     alt: 'A Hothobs catering spread laid out across a long table',
     lede: 'Weddings, offices and Sunday gatherings, cooked to quantity and served hot.',
     ledeTail: 'Tell us the date and the headcount and we will plan it with you.',
-    ctaLabel: 'PLAN AN EVENT',
+    ctaLabel: 'CATER FOR AN EVENT',
     ctaTo: '/catering',
   },
   {
-    id: 'meals',
-    name: 'MEALS',
+    id: 'bowls',
+    name: 'BOWLS MENU',
+    photo: 'photo-1596797038530-2c107229654b',
+    // TODO write an alt description of the actual photograph used.
+    alt: 'A wide pot of Hothobs soup cooking down on the fire',
+    lede: 'Rice, soups, pasta, grills and salads, cooked long and seasoned properly.',
+    ledeTail: 'Sold by the bowl, the litre and the tray.',
+    ctaLabel: 'SEE THE BOWLS',
+    ctaTo: '/menu/bowls',
+  },
+  {
+    id: 'packs',
+    name: 'PACKS & BOXES',
     photo: 'photo-1504674900247-0877df9cc836',
     // TODO write an alt description of the actual photograph used.
     alt: 'A full Hothobs plate, protein and sides, served hot',
@@ -173,17 +184,6 @@ export const heroFeatures = [
     ledeTail: 'Orders Monday to Friday, 8am to 5pm. Minimum order 20 packs.',
     ctaLabel: 'SEE THE PACKS',
     ctaTo: '/menu/packs',
-  },
-  {
-    id: 'soups',
-    name: 'SOUPS',
-    photo: 'photo-1596797038530-2c107229654b',
-    // TODO write an alt description of the actual photograph used.
-    alt: 'A wide pot of Hothobs soup cooking down on the fire',
-    lede: 'Cooked long and seasoned properly, straight from the pot it was made in.',
-    ledeTail: 'Sold by the litre and the tray, quoted by the kitchen.',
-    ctaLabel: 'SEE THE BOWLS',
-    ctaTo: '/menu/bowls#stew-soup',
   },
 ].map((f) => ({
   ...f,

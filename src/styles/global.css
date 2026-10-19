@@ -355,15 +355,6 @@ textarea { min-height: 110px; resize: vertical; }
    Selectable, but never shoppable: catering is quoted by the
    kitchen, so these controls feed an enquiry, not the cart. */
 .cater-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
-.cater-tiers { list-style: none; margin: 0 0 1.25rem; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.cater-tiers li {
-  display: flex; flex-direction: column; gap: 0.15rem; flex: 1 1 8.5rem;
-  padding: 0.55rem 0.75rem; border-radius: 10px; font-size: 0.82rem;
-  background: rgba(0, 64, 32, 0.05); box-shadow: inset 0 0 0 1px var(--line); color: var(--ink-soft);
-}
-/* The band the current headcount actually falls into. */
-.cater-tiers li.on { background: var(--green); color: var(--cream); box-shadow: none; }
-.cater-tiers strong { font-size: 0.95rem; color: inherit; }
 
 .cater-group { border: 0; padding: 0; margin: 0 0 1.25rem; }
 .cater-group:last-of-type { margin-bottom: 0; }
@@ -371,22 +362,45 @@ textarea { min-height: 110px; resize: vertical; }
 .cater-options { display: grid; gap: 0.6rem; }
 
 .cater-option {
-  position: relative; display: block; cursor: pointer;
+  position: relative; display: block;
   padding: 0.85rem 1rem 0.85rem 2.4rem; border-radius: 12px;
   box-shadow: inset 0 0 0 1.5px var(--line); transition: box-shadow 0.15s ease, background 0.15s ease;
 }
 .cater-option:hover { box-shadow: inset 0 0 0 1.5px var(--emerald); }
 .cater-option.on { background: rgba(0, 64, 32, 0.05); box-shadow: inset 0 0 0 2px var(--green); }
-.cater-option:has(input:focus-visible) { outline: 3px solid var(--gold); outline-offset: 2px; }
-/* The radio itself is replaced by the ring drawn below, but it stays in the
-   page — focusable, announced, and the thing that actually holds the state. */
-.cater-option input { position: absolute; opacity: 0; width: 0; height: 0; }
+.cater-option:has(.cater-option-pick input:focus-visible) { outline: 3px solid var(--gold); outline-offset: 2px; }
+.cater-option-pick { display: block; cursor: pointer; }
+/* Quantity row, shown once a dish is ticked. */
+.cater-qty {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.9rem;
+  margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--line);
+}
+.cater-qty-label { font-weight: 700; font-size: 0.9rem; }
+.cater-qty .qty { padding: 0.15rem; }
+.cater-qty .qty button { width: 32px; height: 32px; }
+.cater-qty .qty input {
+  width: 4.5ch; border: 0; background: transparent; text-align: center; font: inherit; font-weight: 700;
+  padding: 0; -moz-appearance: textfield; appearance: textfield;
+}
+.cater-qty .qty input::-webkit-outer-spin-button,
+.cater-qty .qty input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.cater-qty-total { margin-left: auto; font-weight: 800; color: var(--green); text-align: right; }
+.cater-qty-total small { display: block; font-weight: 400; font-size: 0.8rem; color: var(--ink-soft); }
+/* The checkbox itself is replaced by the box drawn below, but it stays in
+   the page — focusable, announced, and the thing that actually holds the state. */
+.cater-option-pick input { position: absolute; opacity: 0; width: 0; height: 0; }
 .cater-option::before {
   content: ''; position: absolute; left: 0.95rem; top: 1.05rem;
-  width: 1rem; height: 1rem; border-radius: 999px;
+  width: 1rem; height: 1rem; border-radius: 4px;
   box-shadow: inset 0 0 0 2px var(--line); background: var(--white);
+  pointer-events: none;
 }
-.cater-option.on::before { box-shadow: inset 0 0 0 5px var(--green); }
+.cater-option.on::before { background: var(--green); box-shadow: none; }
+.cater-option.on::after {
+  content: ''; position: absolute; left: calc(0.95rem + 5px); top: calc(1.05rem + 2px);
+  width: 4px; height: 8px; border: solid var(--cream); border-width: 0 2px 2px 0;
+  transform: rotate(45deg); pointer-events: none;
+}
 .cater-option-name { display: block; font-weight: 700; font-size: 0.97rem; }
 .cater-option-price { display: block; font-style: normal; font-weight: 800; color: var(--green); font-size: 0.9rem; margin-top: 0.15rem; }
 .cater-items { display: grid; gap: 0.25rem; margin-top: 0.5rem; }
@@ -398,14 +412,24 @@ textarea { min-height: 110px; resize: vertical; }
    soon as the aside's own bottom passes. Stretching it to the row's height
    is what keeps the selection pinned for the whole length of the menu. */
 .cater-aside { align-self: stretch; }
-/* 88px clears the 72px sticky header. A long selection is allowed to scroll
-   inside itself rather than run off the bottom of the viewport. */
-.cater-summary { position: sticky; top: 88px; max-height: calc(100vh - 6.5rem); overflow: auto; }
+/* Clears the 72px sticky header and the sticky course bar under it. A long
+   selection is allowed to scroll inside itself rather than run off the
+   bottom of the viewport. */
+.cater-summary {
+  position: sticky; top: calc(72px + var(--cater-nav-h) + 1rem);
+  max-height: calc(100vh - 72px - var(--cater-nav-h) - 2rem); overflow: auto;
+}
 @media (max-width: 880px) {
   .cater-aside { align-self: start; }
   .cater-summary { position: static; max-height: none; overflow: visible; }
 }
 .cater-summary .field { margin: 1rem 0; }
+
+/* Checkout: the pay-on-delivery notice under the delivery choices. */
+.delivery-note {
+  margin: 1rem 0 0; padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.92rem;
+  background: rgba(0, 64, 32, 0.05); border-left: 3px solid var(--warm-gold);
+}
 .cater-summary .confirm { max-width: none; }
 .cater-subhead {
   margin: 1.5rem 0 0; padding-top: 1.25rem; border-top: 1.5px solid var(--line);
@@ -413,11 +437,39 @@ textarea { min-height: 110px; resize: vertical; }
 }
 .cater-line { display: flex; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid var(--line); }
 .cater-line small { display: block; font-size: 0.84rem; color: var(--ink-soft); }
-/* The full-width band above the menu: heading and pills on one line while
-   there is room for both. */
-.cater-includes { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.5rem; margin-bottom: 1.5rem; }
-.cater-includes h2 { margin: 0; font-size: clamp(1.15rem, 2.2vw, 1.45rem); }
-.cater-includes .cater-included { flex: 1 1 22rem; }
+/* What every booking includes — under the Send enquiry button. */
+.cater-includes { margin-bottom: 1.25rem; }
+.cater-includes .cater-subhead { margin-bottom: 0.75rem; }
+
+/* The course bar. Sticky under the site header, two rows of chips that
+   scroll sideways together on a narrow screen; it carries the band's
+   background so courses slide under it. --cater-nav-h is the fallback
+   until CateringMenu.jsx measures the real height. */
+:root { --cater-nav-h: 6.4rem; }
+.cater-nav {
+  position: sticky; top: 72px; z-index: 20;
+  display: flex; flex-direction: column; gap: 0.4rem;
+  margin: 0 0 1.5rem; padding: 0.6rem 0.25rem;
+  overflow-x: auto; scrollbar-width: none;
+  background: var(--cream); box-shadow: 0 1px 0 var(--line), 0 10px 14px -12px rgba(0, 0, 0, 0.18);
+}
+.cater-nav::-webkit-scrollbar { display: none; }
+.cater-nav-row { display: flex; gap: 0.4rem; width: max-content; }
+.cater-nav a {
+  flex: 0 0 auto; white-space: nowrap; padding: 0.5rem 0.95rem; border-radius: 999px;
+  font-weight: 600; font-size: 0.9rem; color: var(--ink-soft);
+  background: var(--white); box-shadow: inset 0 0 0 1px var(--line);
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+.cater-nav a:hover { color: var(--green); box-shadow: inset 0 0 0 1.5px var(--emerald); }
+.cater-nav a.on { background: var(--green); color: var(--cream); box-shadow: none; }
+
+/* Parallax: the scroll handler in CateringMenu.jsx sets --shift from each
+   course's distance to the middle of the screen. */
+.cater-course { transform: translate3d(0, var(--shift, 0px), 0); scroll-margin-top: calc(72px + var(--cater-nav-h) + 1rem); }
+@media (prefers-reduced-motion: reduce) {
+  .cater-course { transform: none; }
+}
 .cater-terms { margin-top: 3rem; }
 .cater-terms .head { margin-bottom: 1.5rem; }
 .cater-included { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
@@ -447,7 +499,7 @@ textarea { min-height: 110px; resize: vertical; }
 
 /* ── Footer ──────────────────────────────────────────────── */
 .footer { background: var(--deep); color: rgba(255, 248, 232, 0.75); padding: 3.5rem 0 2rem; }
-.footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 2rem; }
+.footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 2rem; }
 @media (max-width: 780px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
 .footer h4 { font-family: var(--serif); font-weight: 400; font-size: 1.1rem; color: var(--cream); margin: 0 0 0.75rem; }
 .footer a:hover { color: var(--warm-gold); }

@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom'
 import SteamRule from '../components/SteamRule.jsx'
-import { menus, byMenu, categoriesOf } from '../data/menu.js'
+import { overviewMenus, byMenu, categoriesOf } from '../data/menu.js'
 
 /**
- * The menu landing page: three menus, one card each.
+ * The menu landing page: one card per everyday menu.
  *
- * Hothobs publishes three separate menus and prices them differently, so
- * this page sends people to the right one rather than pretending they are
- * one long list. The nav dropdown does the same job in one click; this page
+ * Hothobs prices its menus differently, so this page sends people to the
+ * right one rather than pretending they are one long list. Breakfast is not
+ * here — it is quoted like the rest of catering, on the catering menu. The nav links do the
+ * same job in one click; this page
  * is for anyone who arrives at /menu from a link, a search result or the
  * "Order now" button.
  */
@@ -18,9 +19,8 @@ export default function Menu() {
         <div className="wrap">
           <h1 style={{ color: 'var(--cream)' }}>Our menus</h1>
           <p style={{ fontSize: '1.1rem', maxWidth: '52ch' }}>
-            Three menus, cooked to order in our Lagos kitchen. Breakfast is priced per head,
-            the bowls and trays are sold by the litre, and the packs and boxes go out by the
-            pack.
+            Two menus, cooked to order in our Lagos kitchen. The bowls and trays are sold by
+            the litre, and the packs and boxes go out by the pack.
           </p>
         </div>
         <SteamRule color="var(--cream)" />
@@ -28,8 +28,8 @@ export default function Menu() {
 
       <section className="band band-cream" style={{ paddingTop: '2rem' }}>
         <div className="wrap">
-          <div className="grid grid-3">
-            {menus.map((m) => {
+          <div className="grid grid-2">
+            {overviewMenus.map((m) => {
               const cats = categoriesOf(m.id)
               const count = byMenu(m.id).length
               return (
@@ -62,7 +62,8 @@ export default function Menu() {
         <div className="wrap">
           <h2>Catering an event instead?</h2>
           <p style={{ margin: '0 auto 1.75rem', maxWidth: '46ch' }}>
-            Weddings, offices and Sunday gatherings are quoted from the catering menu.
+            Weddings, offices, Sunday gatherings and group breakfasts are quoted from the
+            catering menu.
           </p>
           <Link className="btn btn-gold" to="/catering/menu">See the catering menu</Link>
         </div>

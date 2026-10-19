@@ -9,7 +9,7 @@ rather than fluid layout: every length in `src/styles/hero.css` is
 1353 x 1163 reference. Change `--u` and the whole thing scales as a unit —
 do not substitute raw `px` values into it.
 
-Three features rotate: **CATERING**, **MEALS** and **SOUPS**, defined by
+Three features rotate: **CATERING**, **BOWLS MENU** and **PACKS & BOXES**, defined by
 `heroFeatures` in `src/data/site.js`. Array order is what places them: the
 first entry is the one the page opens on, the second fills the left slot and
 the third the right. Exactly one is on screen — its photograph is the

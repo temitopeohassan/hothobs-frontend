@@ -8,15 +8,8 @@ import { useAuth } from '../context/AuthContext.jsx'
 // the menu — and for search engines, which do not.
 const links = [
   { to: '/', label: 'Home' },
-  {
-    to: '/menu',
-    label: 'Meals Menu',
-    children: [
-      { to: '/menu/breakfast', label: 'Breakfast Menu' },
-      { to: '/menu/bowls', label: 'Bowls Menu' },
-      { to: '/menu/packs', label: 'Packs & Boxes' },
-    ],
-  },
+  { to: '/menu/bowls', label: 'Bowls Menu' },
+  { to: '/menu/packs', label: 'Packs & Boxes' },
   {
     to: '/catering',
     label: 'Catering',

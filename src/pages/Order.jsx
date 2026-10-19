@@ -7,13 +7,13 @@ import { rememberGuestOrder } from '../lib/guestOrders.js'
 import { naira } from '../data/menu.js'
 import { orderingInfo } from '../data/site.js'
 
-// Mirrors the server's list so the form renders before /zones responds; the
-// server is the authority on fees and re-sends them below.
+// Mirrors the server's list so the form renders before /zones responds.
+// No fees: delivery is paid on delivery, outside the total.
 const defaultZones = [
-  { id: 'pickup', label: 'Pickup from our kitchen', fee: 0 },
-  { id: 'mainland', label: 'Delivery — Mainland', fee: 3000 },
-  { id: 'island', label: 'Delivery — Island', fee: 4500 },
-  { id: 'outside', label: 'Delivery — outside Lagos', fee: null },
+  { id: 'pickup', label: 'Pickup from our kitchen' },
+  { id: 'mainland', label: 'Delivery — Mainland' },
+  { id: 'island', label: 'Delivery — Island' },
+  { id: 'outside', label: 'Delivery — outside Lagos' },
 ]
 
 // Every order has to be placed at least a day ahead, so the earliest date on
@@ -113,9 +113,8 @@ export default function Order() {
     }
   }
 
-  const selectedZone = zones.find((z) => z.id === zone)
-  const fee = selectedZone?.fee ?? 0
-  const total = subtotal + fee
+  // Delivery is paid on delivery, so what Paystack charges is the food alone.
+  const total = subtotal
   const isPickup = zone === 'pickup'
   // A guest has no account to reach them through, so the details the kitchen
   // needs have to come from the form. The server checks all of this again.
@@ -352,11 +351,16 @@ export default function Order() {
                   <label key={z.id} className={`choice ${zone === z.id ? 'on' : ''}`}>
                     <input type="radio" name="zone" checked={zone === z.id} onChange={() => setZone(z.id)} />
                     {z.label}
-                    {z.fee > 0 && ` · ${naira(z.fee)}`}
-                    {z.fee === null && ' · we will quote'}
                   </label>
                 ))}
               </div>
+
+              {!isPickup && (
+                <p className="delivery-note" role="note">
+                  <strong>Delivery is paid on delivery.</strong> The delivery charge is not
+                  included in your total — you pay it directly when your order arrives.
+                </p>
+              )}
 
               {!isPickup && (
                 <div className="field">
@@ -456,12 +460,18 @@ export default function Order() {
               </div>
               <div className="summary-row">
                 <span>{isPickup ? 'Pickup' : 'Delivery'}</span>
-                <span>{selectedZone?.fee === null ? 'Quoted after we call' : naira(fee)}</span>
+                <span>{isPickup ? 'No charge' : 'Paid on delivery'}</span>
               </div>
               <div className="summary-total">
                 <span>Total</span>
                 <span className="price">{naira(total)}</span>
               </div>
+              {!isPickup && (
+                <p className="note" style={{ marginTop: '0.5rem', marginBottom: 0 }}>
+                  Delivery charges are not included in this total. They are paid by you on
+                  delivery.
+                </p>
+              )}
 
               {message && <p className="form-error" role="alert" style={{ marginTop: '1rem' }}>{message}</p>}
 

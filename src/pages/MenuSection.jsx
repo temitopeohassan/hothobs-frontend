@@ -1,23 +1,27 @@
 import { Link, useParams } from 'react-router-dom'
 import SteamRule from '../components/SteamRule.jsx'
 import ProductCard from '../components/ProductCard.jsx'
-import { getMenu, categoriesOf, byMenu, byCategory } from '../data/menu.js'
+import { getMenu, menuParent, categoriesOf, byMenu, byCategory } from '../data/menu.js'
 import NotFound from './NotFound.jsx'
 
 /**
- * One of the three menus, in full.
+ * One menu, in full.
  *
  * Everything is on the page at once, grouped by category, because these are
  * menus people scan rather than search — the category rail jumps, it does
  * not filter. Each category keeps its own anchor so the nav, the footer and
  * the landing page can link straight to it.
+ *
+ * Menus with a page of their own (Bowls, Packs & Boxes) pass `menuId`;
+ * the rest come in through the /menu/:menuId route.
  */
-export default function MenuSection() {
-  const { menuId } = useParams()
-  const menu = getMenu(menuId)
+export default function MenuSection({ menuId: fixedId }) {
+  const params = useParams()
+  const menu = getMenu(fixedId ?? params.menuId)
 
   if (!menu) return <NotFound />
 
+  const parent = menuParent(menu.id)
   const cats = categoriesOf(menu.id)
   const total = byMenu(menu.id).length
 
@@ -26,7 +30,7 @@ export default function MenuSection() {
       <section className="band band-deep" style={{ paddingBottom: '2rem' }}>
         <div className="wrap">
           <p className="crumb" style={{ color: 'rgba(255, 248, 232, 0.75)' }}>
-            <Link to="/menu">Menus</Link> / {menu.name}
+            <Link to={parent.to}>{parent.label}</Link> / {menu.name}
           </p>
           <h1 style={{ color: 'var(--cream)' }}>{menu.name}</h1>
           <p style={{ fontSize: '1.1rem', maxWidth: '52ch' }}>{menu.blurb}</p>

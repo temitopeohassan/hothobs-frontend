@@ -80,7 +80,13 @@ function OrderCard({ order, onReorder }) {
           </div>
           <div className="summary-row">
             <span>{order.fulfilment === 'pickup' ? 'Pickup' : 'Delivery'}</span>
-            <span>{order.deliveryFee === null ? 'Quoted on the call' : naira(order.deliveryFee)}</span>
+            <span>
+              {order.deliveryFee !== null
+                ? naira(order.deliveryFee)
+                : order.fulfilment === 'pickup'
+                  ? 'No charge'
+                  : 'Paid on delivery'}
+            </span>
           </div>
           <div className="summary-total">
             <span>Total</span>

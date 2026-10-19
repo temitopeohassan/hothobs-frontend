@@ -162,7 +162,9 @@ export default function Hero() {
           <div className="col eyebrow">
             <span className="ent-mask"><span className="ent-line">{heroEyebrow}</span></span>
           </div>
-          <h1 className="col title">
+          {/* Names longer than CATERING are set smaller so they hold one
+              line at every width. */}
+          <h1 className={`col title ${current.name.length > 8 ? 'title-long' : ''}`}>
             <span className="ent-mask"><span className="ent-line">{current.name}</span></span>
           </h1>
           <div className="col rule"><span /></div>

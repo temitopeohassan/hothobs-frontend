@@ -7,6 +7,8 @@ import OrderBar from './components/OrderBar.jsx'
 import Home from './pages/Home.jsx'
 import Menu from './pages/Menu.jsx'
 import MenuSection from './pages/MenuSection.jsx'
+import BowlsMenu from './pages/BowlsMenu.jsx'
+import PacksMenu from './pages/PacksMenu.jsx'
 import Product from './pages/Product.jsx'
 import Catering from './pages/Catering.jsx'
 import CateringMenu from './pages/CateringMenu.jsx'
@@ -48,6 +50,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/menu" element={<Menu />} />
+          <Route path="/menu/bowls" element={<BowlsMenu />} />
+          <Route path="/menu/packs" element={<PacksMenu />} />
           <Route path="/menu/:menuId" element={<MenuSection />} />
           <Route path="/menu/:menuId/:slug" element={<Product />} />
           <Route path="/catering" element={<Catering />} />
